@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{/* Main Calculator */}<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -40,12 +40,16 @@
                 
                 // Check if we're in production (GitHub) vs demo (Claude)
                 this.isProduction = window.location.hostname !== 'claude.ai' && 
+                                   window.location.hostname !== 'localhost' &&
                                    this.supabaseUrl !== 'YOUR_SUPABASE_URL_HERE';
                 
                 if (this.isProduction) {
                     console.log('🌍 Production mode: Supabase enabled');
+                    console.log('🔗 URL:', this.supabaseUrl);
+                    console.log('🗄️ Database connection ready');
                 } else {
                     console.log('🔧 Demo mode: Local storage only');
+                    console.log('🌐 Hostname:', window.location.hostname);
                 }
             }
 
@@ -56,6 +60,8 @@
                 
                 const url = `${this.supabaseUrl}/rest/v1/${endpoint}`;
                 console.log(`🔄 ${method} ${endpoint}...`);
+                console.log(`🔗 Full URL: ${url}`);
+                if (body) console.log(`📤 Sending data:`, body);
                 
                 const options = {
                     method: method,
@@ -72,14 +78,17 @@
                 }
                 
                 const response = await fetch(url, options);
+                const responseText = await response.text();
+                
+                console.log(`📥 Response status: ${response.status}`);
+                console.log(`📥 Response text: ${responseText}`);
                 
                 if (response.ok) {
                     console.log(`✅ Supabase ${method} successful!`);
-                    return method === 'GET' ? await response.json() : { success: true };
+                    return method === 'GET' ? (responseText ? JSON.parse(responseText) : []) : { success: true };
                 } else {
-                    const errorText = await response.text();
-                    console.log(`❌ Supabase error ${response.status}:`, errorText);
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    console.log(`❌ Supabase error ${response.status}:`, responseText);
+                    throw new Error(`HTTP ${response.status}: ${responseText}`);
                 }
             }
 
@@ -99,13 +108,21 @@
                 if (this.isProduction) {
                     // Production: Save to Supabase
                     try {
-                        try {
+                        // First try to check if record exists
+                        console.log(`🔍 Checking if code "${code}" already exists...`);
+                        const existingData = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=id`);
+                        
+                        if (existingData && existingData.length > 0) {
+                            // Update existing record
+                            console.log(`📝 Updating existing record for code "${code}"`);
                             await this.callSupabase('PATCH', `Quotes?code=eq.${code}`, {
                                 data: data,
                                 updated_at: new Date().toISOString()
                             });
                             console.log('✅ Updated existing record in Supabase');
-                        } catch (updateError) {
+                        } else {
+                            // Create new record
+                            console.log(`📝 Creating new record for code "${code}"`);
                             await this.callSupabase('POST', 'Quotes', {
                                 code: code,
                                 data: data,
@@ -151,11 +168,16 @@
                 if (this.isProduction) {
                     // Production: Load from Supabase first
                     try {
+                        console.log(`🔍 Searching for code "${code}" in Supabase...`);
                         const data = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=*`);
                         
-                        if (data && data.length > 0) {
-                            console.log('✅ Loaded from Supabase cloud!');
+                        console.log(`📊 Query result:`, data);
+                        console.log(`📊 Result length:`, data ? data.length : 'null');
+                        
+                        if (data && Array.isArray(data) && data.length > 0) {
+                            console.log('✅ Found record in Supabase cloud!');
                             const record = data[0];
+                            console.log('📋 Record data:', record);
                             
                             const quoteData = {
                                 data: record.data,
@@ -173,9 +195,12 @@
                                 source: 'supabase',
                                 timestamp: record.updated_at || record.created_at
                             };
+                        } else {
+                            console.log('❌ No records found in Supabase for this code');
                         }
                     } catch (e) {
                         console.log('❌ Supabase load failed:', e.message);
+                        console.log('❌ Full error:', e);
                     }
                 }
                 
@@ -479,7 +504,21 @@
                             </div>
                         )}
 
-                        {/* Main Calculator */}
+                        {/* Debug Info */}
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
+                            <h3 className="font-semibold text-gray-800 mb-2">🔍 Debug Information</h3>
+                            <div className="grid md:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <strong>Mode:</strong> {cloudStorage.isProduction ? 'Production (Supabase)' : 'Demo (Local)'}
+                                </div>
+                                <div>
+                                    <strong>Hostname:</strong> {window.location.hostname}
+                                </div>
+                                <div>
+                                    <strong>Database:</strong> {cloudStorage.isProduction ? 'Supabase Active' : 'Demo Mode'}
+                                </div>
+                            </div>
+                        </div>
                         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
                             <div className="flex items-center gap-4 mb-6">
                                 <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-900 to-pink-500 bg-clip-text text-transparent">
