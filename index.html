@@ -1,4 +1,4 @@
-const generateCode = () => {                        {/* Main Calculator */}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -29,16 +29,14 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
         const Globe = () => <svg className="lucide" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
         const Github = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>;
 
-        // 🎯 GITHUB-READY SUPABASE STORAGE
+        // Supabase Storage
         class SupabaseStorage {
             constructor() {
-                // ✅ YOUR SUPABASE CREDENTIALS CONFIGURED
                 this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
                 this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzYXh2cGN3bG14ZGJpZXRtanJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2NzQwOTYsImV4cCI6MjA2NTI1MDA5Nn0.SnjvZx-xVMwtPBe62xY66y6vi1CQq4F04AOy53oRPDE';
                 
                 this.quotes = new Map();
                 
-                // Check if we're in production (GitHub) vs demo (Claude)
                 this.isProduction = window.location.hostname !== 'claude.ai' && 
                                    window.location.hostname !== 'localhost' &&
                                    this.supabaseUrl !== 'YOUR_SUPABASE_URL_HERE';
@@ -102,18 +100,14 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                     version: '2.0'
                 };
                 
-                // Always store in memory
                 this.quotes.set(code, quoteData);
                 
                 if (this.isProduction) {
-                    // Production: Save to Supabase
                     try {
-                        // First try to check if record exists
                         console.log(`🔍 Checking if code "${code}" already exists...`);
                         const existingData = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=id`);
                         
                         if (existingData && existingData.length > 0) {
-                            // Update existing record
                             console.log(`📝 Updating existing record for code "${code}"`);
                             await this.callSupabase('PATCH', `Quotes?code=eq.${code}`, {
                                 data: data,
@@ -121,7 +115,6 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                             });
                             console.log('✅ Updated existing record in Supabase');
                         } else {
-                            // Create new record
                             console.log(`📝 Creating new record for code "${code}"`);
                             await this.callSupabase('POST', 'Quotes', {
                                 code: code,
@@ -150,7 +143,6 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                         };
                     }
                 } else {
-                    // Demo: Simulate cloud save
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     return {
                         success: true,
@@ -166,7 +158,6 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                 console.log(`📖 Loading quote "${code}"...`);
                 
                 if (this.isProduction) {
-                    // Production: Load from Supabase first
                     try {
                         console.log(`🔍 Searching for code "${code}" in Supabase...`);
                         const data = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=*`);
@@ -204,7 +195,6 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                     }
                 }
                 
-                // Check in-memory storage as fallback
                 if (this.quotes.has(code)) {
                     console.log('✅ Loaded from session memory');
                     const quoteData = this.quotes.get(code);
@@ -320,6 +310,8 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                 if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
                 return 0;
             };
+
+            const generateCode = () => {
                 let companyPart = 'PROSPECT';
                 if (formData.prospectName) {
                     companyPart = formData.prospectName
@@ -439,7 +431,6 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                 <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 p-4">
                     <div className="max-w-6xl mx-auto">
                         
-                        {/* GitHub + Supabase Header */}
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-500 rounded-xl shadow-xl text-white p-6 mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="bg-white/20 p-3 rounded-xl">
@@ -468,48 +459,6 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                             </div>
                         </div>
 
-                        {/* Setup Instructions */}
-                        {!cloudStorage.isProduction && (
-                            <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
-                                <h2 className="text-xl font-semibold text-green-800 mb-4 flex items-center gap-2">
-                                    ✅ Final Setup Steps - Almost Ready!
-                                </h2>
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <h3 className="font-semibold text-green-800 mb-2">1. Create Database Table</h3>
-                                        <div className="text-sm text-green-700 space-y-1">
-                                            <p>Go to <strong>SQL Editor</strong> in your Supabase dashboard and run:</p>
-                                            <div className="bg-green-100 p-2 rounded font-mono text-xs">
-                                                CREATE TABLE "Quotes" (<br/>
-                                                &nbsp;&nbsp;id SERIAL PRIMARY KEY,<br/>
-                                                &nbsp;&nbsp;code TEXT UNIQUE NOT NULL,<br/>
-                                                &nbsp;&nbsp;data JSONB NOT NULL,<br/>
-                                                &nbsp;&nbsp;created_at TIMESTAMPTZ DEFAULT NOW(),<br/>
-                                                &nbsp;&nbsp;updated_at TIMESTAMPTZ DEFAULT NOW()<br/>
-                                                );
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-green-800 mb-2">2. Deploy to GitHub</h3>
-                                        <ul className="text-sm text-green-700 space-y-1">
-                                            <li>• Save this HTML as <code>index.html</code></li>
-                                            <li>• Create GitHub repository</li>
-                                            <li>• Upload the file</li>
-                                            <li>• Enable GitHub Pages</li>
-                                            <li>• <strong>Start sharing quotes globally! 🌍</strong></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div className="mt-4 text-center">
-                                    <div className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-semibold">
-                                        🎉 Your Supabase is configured and ready!
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Debug Info */}
                         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
                             <h3 className="font-semibold text-gray-800 mb-2">🔍 Debug Information</h3>
                             <div className="grid md:grid-cols-3 gap-4 text-sm">
@@ -524,6 +473,7 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                                 </div>
                             </div>
                         </div>
+
                         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
                             <div className="flex items-center gap-4 mb-6">
                                 <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-900 to-pink-500 bg-clip-text text-transparent">
@@ -551,7 +501,6 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                                 />
                             </div>
                             
-                            {/* Quote Management */}
                             <div className="bg-gradient-to-br from-green-600 to-emerald-500 rounded-xl text-white p-6 mb-6">
                                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                                     <Database className="w-6 h-6" />
@@ -618,185 +567,290 @@ const generateCode = () => {                        {/* Main Calculator */}<!DOC
                                 )}
                             </div>
 
-                            {/* Main Calculator Content */}
-                            <div>
-                                {/* Workspace Configuration */}
-                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <Database className="w-6 h-6 text-pink-500" />
-                                        <h2 className="text-xl font-semibold text-gray-800">Workspace Configuration</h2>
-                                    </div>
-                                    
-                                    <div className="space-y-6">
-                                        {/* Total Workspaces */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Total Workspaces</label>
-                                            <input 
-                                                type="number"
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.totalWorkspaces}
-                                                onChange={(e) => handleInputChange('totalWorkspaces', e.target.value)}
-                                                placeholder="Enter total number of workspaces"
-                                            />
-                                        </div>
-
-                                        {/* BI Workspaces */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspaces</label>
-                                            <input 
-                                                type="number"
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.biWorkspaces}
-                                                onChange={(e) => handleInputChange('biWorkspaces', e.target.value)}
-                                                placeholder="Number of BI workspaces"
-                                            />
-                                        </div>
-                                        
-                                        {/* AI Workspaces */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspaces</label>
-                                            <input 
-                                                type="number"
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                                value={formData.aiWorkspaces}
-                                                onChange={(e) => handleInputChange('aiWorkspaces', e.target.value)}
-                                                placeholder="Number of AI workspaces"
-                                            />
-                                        </div>
-                                        
-                                        {/* LLM Provider */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>
-                                            <select 
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                                                value={formData.llmProvider}
-                                                onChange={(e) => handleInputChange('llmProvider', e.target.value)}
-                                            >
-                                                <option value="">Select Provider</option>
-                                                <option value="Customer">Customer</option>
-                                                <option value="GoodData">GoodData</option>
-                                            </select>
-                                        </div>
-                                        
-                                        {/* Package Size */}
-                                        {formData.llmProvider && (
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
-                                                <select 
-                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                                                    value={formData.package}
-                                                    onChange={(e) => handleInputChange('package', e.target.value)}
-                                                >
-                                                    <option value="">Select Package</option>
-                                                    <option value="Small">Small</option>
-                                                    <option value="Medium">Medium</option>
-                                                    <option value="Large">Large</option>
-                                                </select>
-                                            </div>
-                                        )}
-                                    </div>
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Database className="w-6 h-6 text-pink-500" />
+                                    <h2 className="text-xl font-semibold text-gray-800">Workspace Configuration</h2>
                                 </div>
+                                
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Total Workspaces</label>
+                                        <input 
+                                            type="number"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            value={formData.totalWorkspaces}
+                                            onChange={(e) => handleInputChange('totalWorkspaces', e.target.value)}
+                                            placeholder="Enter total number of workspaces"
+                                        />
+                                    </div>
 
-                                {/* Professional Services */}
-                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <Users className="w-6 h-6 text-blue-600" />
-                                        <h2 className="text-xl font-semibold text-gray-800">Professional Services</h2>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspaces</label>
+                                        <input 
+                                            type="number"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            value={formData.biWorkspaces}
+                                            onChange={(e) => handleInputChange('biWorkspaces', e.target.value)}
+                                            placeholder="Number of BI workspaces"
+                                        />
                                     </div>
                                     
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Professional Services</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspaces</label>
+                                        <input 
+                                            type="number"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            value={formData.aiWorkspaces}
+                                            onChange={(e) => handleInputChange('aiWorkspaces', e.target.value)}
+                                            placeholder="Number of AI workspaces"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>
                                         <select 
                                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                                            value={formData.professionalServices}
-                                            onChange={(e) => handleInputChange('professionalServices', e.target.value)}
+                                            value={formData.llmProvider}
+                                            onChange={(e) => handleInputChange('llmProvider', e.target.value)}
                                         >
-                                            <option value="">Select Service</option>
-                                            <option value="Advisory">Advisory Package - 80 hours - $10,000</option>
-                                            <option value="Analytics">Analytics Package - 300 hours - $37,500</option>
-                                            <option value="End-to-end">End-to-end Implementation - 800 hours - $100,000</option>
+                                            <option value="">Select Provider</option>
+                                            <option value="Customer">Customer</option>
+                                            <option value="GoodData">GoodData</option>
                                         </select>
                                     </div>
-                                </div>
-
-                                {/* Premium Enterprise Features */}
-                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                    <h2 className="text-xl font-semibold text-gray-800 mb-6">Premium Enterprise Features</h2>
                                     
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        {[
-                                            { 
-                                                key: 'additionalEnvironments', 
-                                                label: 'Additional Environments', 
-                                                desc: 'Dev/Test/Staging environments', 
-                                                price: pricing.additionalEnvironments 
-                                            },
-                                            { 
-                                                key: 'samlOidc', 
-                                                label: 'SAML & Multiple OIDC', 
-                                                desc: 'Enterprise SSO integration', 
-                                                price: pricing.samlOidc 
-                                            },
-                                            { 
-                                                key: 'dataCenterRegions', 
-                                                label: 'Data Center Regions', 
-                                                desc: 'Multi-region deployment', 
-                                                price: pricing.dataCenterRegions 
-                                            },
-                                            { 
-                                                key: 'usageAnalytics', 
-                                                label: 'Usage Analytics', 
-                                                desc: 'Advanced usage reporting', 
-                                                price: pricing.usageAnalytics 
-                                            },
-                                            { 
-                                                key: 'auditLog', 
-                                                label: 'Audit Log', 
-                                                desc: 'Comprehensive audit trails', 
-                                                price: pricing.auditLog 
-                                            },
-                                            { 
-                                                key: 'hipaaCompliance', 
-                                                label: 'HIPAA Compliance', 
-                                                desc: 'Healthcare data protection', 
-                                                price: pricing.hipaaCompliance 
-                                            }
-                                        ].map(addon => (
-                                            <label key={addon.key} className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                                <input 
-                                                    type="checkbox"
-                                                    checked={formData[addon.key]}
-                                                    onChange={(e) => handleInputChange(addon.key, e.target.checked)}
-                                                    className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 mt-0.5"
-                                                />
-                                                <div className="flex-1">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <span className="text-gray-800 font-medium">{addon.label}</span>
-                                                        <span className="text-purple-600 font-semibold">${addon.price.toLocaleString()}</span>
-                                                    </div>
-                                                    <p className="text-sm text-gray-600">{addon.desc}</p>
-                                                </div>
-                                            </label>
-                                        ))}
-                                    </div>
+                                    {formData.llmProvider && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
+                                            <select 
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                                                value={formData.package}
+                                                onChange={(e) => handleInputChange('package', e.target.value)}
+                                            >
+                                                <option value="">Select Package</option>
+                                                {formData.llmProvider === 'Customer' && (
+                                                    <>
+                                                        <option value="Small">Small - $100/month</option>
+                                                        <option value="Medium">Medium - $430/month</option>
+                                                        <option value="Large">Large - $750/month</option>
+                                                    </>
+                                                )}
+                                                {formData.llmProvider === 'GoodData' && (
+                                                    <>
+                                                        <option value="Small">Small - $200/month</option>
+                                                        <option value="Medium">Medium - $750/month</option>
+                                                        <option value="Large">Large - $900/month</option>
+                                                    </>
+                                                )}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
+                            </div>
 
-                                {/* Total Display */}
-                                <div className="bg-gradient-to-r from-purple-900 to-pink-500 text-white rounded-xl p-8 text-center">
-                                    <h2 className="text-2xl font-semibold mb-4">💰 Total Annual Contract Value</h2>
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Users className="w-6 h-6 text-blue-600" />
+                                    <h2 className="text-xl font-semibold text-gray-800">Professional Services</h2>
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Professional Services</label>
+                                    <select 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                                        value={formData.professionalServices}
+                                        onChange={(e) => handleInputChange('professionalServices', e.target.value)}
+                                    >
+                                        <option value="">Select Service</option>
+                                        <option value="Advisory">Advisory Package - 80 hours - $10,000</option>
+                                        <option value="Analytics">Analytics Package - 300 hours - $37,500</option>
+                                        <option value="End-to-end">End-to-end Implementation - 800 hours - $100,000</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-6">Premium Enterprise Features</h2>
+                                
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    {[
+                                        { 
+                                            key: 'additionalEnvironments', 
+                                            label: 'Additional Environments', 
+                                            desc: 'Dev/Test/Staging environments', 
+                                            price: pricing.additionalEnvironments 
+                                        },
+                                        { 
+                                            key: 'samlOidc', 
+                                            label: 'SAML & Multiple OIDC', 
+                                            desc: 'Enterprise SSO integration', 
+                                            price: pricing.samlOidc 
+                                        },
+                                        { 
+                                            key: 'dataCenterRegions', 
+                                            label: 'Data Center Regions', 
+                                            desc: 'Multi-region deployment', 
+                                            price: pricing.dataCenterRegions 
+                                        },
+                                        { 
+                                            key: 'usageAnalytics', 
+                                            label: 'Usage Analytics', 
+                                            desc: 'Advanced usage reporting', 
+                                            price: pricing.usageAnalytics 
+                                        },
+                                        { 
+                                            key: 'auditLog', 
+                                            label: 'Audit Log', 
+                                            desc: 'Comprehensive audit trails', 
+                                            price: pricing.auditLog 
+                                        },
+                                        { 
+                                            key: 'hipaaCompliance', 
+                                            label: 'HIPAA Compliance', 
+                                            desc: 'Healthcare data protection', 
+                                            price: pricing.hipaaCompliance 
+                                        }
+                                    ].map(addon => (
+                                        <label key={addon.key} className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData[addon.key]}
+                                                onChange={(e) => handleInputChange(addon.key, e.target.checked)}
+                                                className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 mt-0.5"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-gray-800 font-medium">{addon.label}</span>
+                                                    <span className="text-purple-600 font-semibold">${addon.price.toLocaleString()}</span>
+                                                </div>
+                                                <p className="text-sm text-gray-600">{addon.desc}</p>
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="bg-gradient-to-r from-purple-900 to-pink-500 text-white rounded-xl p-8">
+                                <div className="text-center mb-6">
+                                    <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
+                                        <DollarSign className="w-6 h-6" />
+                                        Total Annual Contract Value
+                                    </h2>
                                     <div className="text-5xl font-bold mb-2">
                                         ${calculateTotal().toLocaleString()}
                                     </div>
                                     <div className="text-lg opacity-90">
                                         Monthly: ${(calculateTotal()/12).toLocaleString()}
                                     </div>
-                                    <div className="mt-4 text-sm bg-white/20 rounded-lg p-3">
-                                        <strong>🌍 GitHub + Supabase Ready!</strong><br/>
-                                        {cloudStorage.isProduction ? 
-                                            'Cross-device quote sharing active!' : 
-                                            'Add your Supabase credentials to enable global sharing!'
-                                        }
+                                </div>
+
+                                <div className="bg-white/10 rounded-lg p-6 space-y-4">
+                                    <h3 className="text-lg font-semibold mb-4 text-center">Pricing Breakdown</h3>
+                                    
+                                    <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                        <span className="text-white/90">Platform Base Fee</span>
+                                        <span className="font-semibold">${pricing.platformFee.toLocaleString()}</span>
                                     </div>
+
+                                    {formData.biWorkspaces && parseInt(formData.biWorkspaces) > 0 && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo × 12)
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {formData.aiWorkspaces && parseInt(formData.aiWorkspaces) > 0 && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo × 12)
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {formData.llmProvider && formData.package && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                {formData.llmProvider} LLM {formData.package} (${pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}/mo × 12)
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${((pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0) * 12).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {formData.professionalServices && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                Professional Services - {formData.professionalServices}
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${getProfessionalServicesCost().toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {formData.additionalEnvironments && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Additional Environments</span>
+                                            <span className="font-semibold">${pricing.additionalEnvironments.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.samlOidc && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">SAML & Multiple OIDC</span>
+                                            <span className="font-semibold">${pricing.samlOidc.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.dataCenterRegions && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Data Center Regions</span>
+                                            <span className="font-semibold">${pricing.dataCenterRegions.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.usageAnalytics && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Usage Analytics</span>
+                                            <span className="font-semibold">${pricing.usageAnalytics.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.auditLog && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Audit Log</span>
+                                            <span className="font-semibold">${pricing.auditLog.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.hipaaCompliance && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">HIPAA Compliance</span>
+                                            <span className="font-semibold">${pricing.hipaaCompliance.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between items-center pt-4 text-lg font-bold border-t-2 border-white/30">
+                                        <span>TOTAL ANNUAL</span>
+                                        <span>${calculateTotal().toLocaleString()}</span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 text-sm bg-white/20 rounded-lg p-3 text-center">
+                                    <strong>🌍 GitHub + Supabase Ready!</strong><br/>
+                                    {cloudStorage.isProduction ? 
+                                        'Cross-device quote sharing active!' : 
+                                        'Add your Supabase credentials to enable global sharing!'
+                                    }
                                 </div>
                             </div>
                         </div>
