@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodData Calculator</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { Calculator, Building, Users, Database, FileText } = lucideReact;
+
+        // Direct Supabase integration
+        class SupabaseStorage {
+            constructor() {
+                this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
+                this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzYXh2cGN3bG14ZGJpZXRtanJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNzYwOTMsImV4cCI6MjA0OTc1MjA5M30.D6CXJo9KBLHfEovgI-5Z4qFQJSPmC_jpc3MiOy3zd';
+                this.quotes = new Map();
+                this.loadLocalQuotes();
+            }
+
+            loadLocalQuotes() {
+                try {
+                    const saved = localStorage.getItem('gooddata_quotes');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        Object.entries(parsed).forEach(([code, data]) => {
+                            this.quotes.set(code, data);
+                        });
+                    }
+                } catch (e) {
+                    console.log('localStorage not available');
+                }
+            }
+
+            async trySimpleFetch(method, url, body = null) {
+                try {
+                    console.log(`🔄 Trying simple ${method} to Supabase...`);
+                    
+                    const options = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': this.supabaseKey,
+                            'Authorization': `Bearer ${this.supabaseKey}`
+                        }
+                    };
+                    
+                    if (body) {
+                        options.body = JSON.stringify(body);
+                    }
+                    
+                    const response = await fetch(url, options);
+                    
+                    if (response.ok) {
+                        console.log('✅ Simple fetch worked!');
+                        return await response.json();
+                    } else {
+                        console.log('❌ Simple fetch failed:', response.status);
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (error) {
+                    console.log('❌ Simple fetch error:', error.message);
+                    throw error;
+                }
+            }
+
+            async save(code, data) {
+                console.log('📝 Starting save process...');
+                
+                const quoteData = {
+                    data: data,
+                    timestamp: new Date().toISOString(),
+                    code: code
+                };
+                
+                this.quotes.set(code, quoteData);
+                
+                try {
+                    const allQuotes = {};
+                    this.quotes.forEach((value, key) => {
+                        allQuotes[key] = value;
+                    });
+                    localStorage.setItem('gooddata_quotes', JSON.stringify(allQuotes));
+                    console.log('✅ Saved locally');
+                } catch (e) {
+                    console.log('❌ Local save failed');
+                }
+
+                let cloudSaved = false;
+                let error = null;
+                
+                try {
+                    await this.trySimpleFetch('POST', `${this.supabaseUrl}/rest/v1/Quotes`, {
+                        code: code,
+                        data: data,
+                        updated_at: new Date().toISOString()
+                    });
+                    cloudSaved = true;
+                } catch (e) {
+                    error = e.message;
+                }
+                
+                return {
+                    success: true,
+                    code: code,
+                    cloudSaved: cloudSaved,
+                    error: error
+                };
+            }
+
+            async load(code) {
+                console.log('📖 Starting load process...');
+                
+                try {
+                    const data = await this.trySimpleFetch('GET', `${this.supabaseUrl}/rest/v1/Quotes?code=eq.${code}&select=*`);
+                    
+                    if (data && data.length > 0) {
+                        console.log('✅ Loaded from Supabase');
+                        const quoteData = {
+                            data: data[0].data,
+                            timestamp: new Date().toISOString(),
+                            code: code
+                        };
+                        this.quotes.set(code, quoteData);
+                        
+                        return {
+                            success: true,
+                            data: data[0].data,
+                            code: code,
+                            source: 'supabase'
+                        };
+                    }
+                } catch (e) {
+                    console.log('Supabase load failed, checking local...');
+                }
+
+                if (this.quotes.has(code)) {
+                    console.log('✅ Loaded from local storage');
+                    const quoteData = this.quotes.get(code);
+                    return {
+                        success: true,
+                        data: quoteData.data,
+                        code: code,
+                        source: 'local'
+                    };
+                }
+
+                return { success: fals
