@@ -314,7 +314,12 @@
                 return total;
             };
 
-            const generateCode = () => {
+            const getProfessionalServicesCost = () => {
+                if (formData.professionalServices === 'Advisory') return pricing.advisory;
+                if (formData.professionalServices === 'Analytics') return pricing.analytics;
+                if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
+                return 0;
+            };
                 let companyPart = 'PROSPECT';
                 if (formData.prospectName) {
                     companyPart = formData.prospectName
