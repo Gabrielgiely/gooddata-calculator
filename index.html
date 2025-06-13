@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodData Calculator - Step 2A Tabs</title>
+    <title>GoodData Calculator - Step 2B Customer Forms</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -24,8 +24,9 @@
         const Users = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m22 21-3-3"/><path d="m16 8 2-2"/></svg>;
         const FileText = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>;
         const Settings = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
+        const Building = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12h4"/><path d="M6 8h4"/><path d="M6 16h4"/><path d="M14 12h4"/><path d="M14 16h4"/><path d="M14 8h4"/><path d="M6 22h12"/></svg>;
 
-        // Enhanced Supabase Storage (EXACT same as Step 1)
+        // Enhanced Supabase Storage (EXACT same as previous steps)
         class SupabaseStorage {
             constructor() {
                 this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
@@ -214,10 +215,7 @@
         const cloudStorage = new SupabaseStorage();
 
         function GoodDataCalculator() {
-            // 🆕 ONLY NEW THING: Tab state
             const [activeTab, setActiveTab] = useState('main');
-            
-            // Everything else EXACTLY the same as Step 1
             const [templateCode, setTemplateCode] = useState('');
             const [message, setMessage] = useState('');
             const [loading, setLoading] = useState(false);
@@ -316,7 +314,7 @@
                 return `${companyPart}-${month}${day}`;
             };
 
-            // EXACT same functions as Step 1
+            // EXACT same save/load functions as previous steps
             const saveQuote = async () => {
                 if (!formData.prospectName) {
                     setMessage('❌ Please enter a prospect name before saving');
@@ -411,22 +409,22 @@
                 <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 p-4">
                     <div className="max-w-6xl mx-auto">
                         
-                        {/* Header - Updated to show Step 2A */}
+                        {/* Header - Updated for Step 2B */}
                         <div className="bg-gradient-to-r from-green-600 to-emerald-500 rounded-xl shadow-xl text-white p-6 mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="bg-white/20 p-3 rounded-xl">
                                     <Database className="w-8 h-8" />
                                 </div>
                                 <div className="flex-1">
-                                    <h1 className="text-2xl font-bold mb-2">🎯 STEP 2A: TABS ADDED!</h1>
+                                    <h1 className="text-2xl font-bold mb-2">🎯 STEP 2B: CUSTOMER FORMS ADDED!</h1>
                                     <div className="text-sm bg-white/20 rounded-lg p-3">
-                                        <strong>Micro-step complete!</strong> Enhanced Supabase + New tab navigation (content comes next!)
+                                        <strong>Customer qualification complete!</strong> Professional forms + Working Supabase + Tab navigation!
                                     </div>
                                 </div>
                                 <div className="text-right text-sm opacity-90">
                                     <div>✅ Cloud sync active</div>
                                     <div>🎨 Tab navigation</div>
-                                    <div>📊 Same functionality</div>
+                                    <div>📝 Customer forms</div>
                                 </div>
                             </div>
                         </div>
@@ -459,7 +457,7 @@
                                 />
                             </div>
                             
-                            {/* Enhanced Quote Management - EXACT same as Step 1 */}
+                            {/* Enhanced Quote Management - EXACT same as previous steps */}
                             <div className="bg-gradient-to-br from-blue-600 to-indigo-500 rounded-xl text-white p-6 mb-6">
                                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                                     <Database className="w-6 h-6" />
@@ -526,7 +524,7 @@
                                 )}
                             </div>
 
-                            {/* 🆕 NEW: Simple Tab Navigation */}
+                            {/* Tab Navigation - Same as Step 2A */}
                             <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
                                 <button
                                     onClick={() => setActiveTab('main')}
@@ -574,10 +572,10 @@
                                 </button>
                             </div>
 
-                            {/* Tab Content - For now, just show different messages */}
+                            {/* Tab Content */}
                             {activeTab === 'main' && (
                                 <div>
-                                    {/* Workspace Configuration - EXACT same as Step 1 */}
+                                    {/* Workspace Configuration - Same as previous steps */}
                                     <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                         <div className="flex items-center gap-3 mb-6">
                                             <Database className="w-6 h-6 text-pink-500" />
@@ -620,7 +618,7 @@
                                         </div>
                                     </div>
 
-                                    {/* Total Display - EXACT same as Step 1 */}
+                                    {/* Total Display - Same as previous steps */}
                                     <div className="bg-gradient-to-r from-purple-900 to-pink-500 text-white rounded-xl p-8 text-center">
                                         <h2 className="text-2xl font-semibold mb-4">💰 Total Annual Contract Value</h2>
                                         <div className="text-5xl font-bold mb-2">
@@ -630,31 +628,260 @@
                                             Monthly: ${(calculateTotal()/12).toLocaleString()}
                                         </div>
                                         <div className="mt-4 text-sm bg-white/20 rounded-lg p-3">
-                                            <strong>🚀 Step 2A: Tab Navigation Added!</strong><br/>
-                                            Click the tabs above to test navigation (content coming in next steps)
+                                            <strong>🚀 Step 2B: Customer Forms Added!</strong><br/>
+                                            Switch to "Customer Info" tab to see the new qualification forms!
                                         </div>
                                     </div>
                                 </div>
                             )}
 
+                            {/* 🆕 NEW: Customer Qualification Content */}
                             {activeTab === 'qualification' && (
-                                <div className="bg-gray-50 rounded-xl p-8 text-center">
-                                    <Users className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Customer Qualification</h3>
-                                    <p className="text-gray-600">✨ This tab will contain customer qualification forms in the next micro-step!</p>
-                                    <div className="mt-4 text-sm text-purple-600 bg-purple-50 rounded-lg p-3">
-                                        <strong>Coming in Step 2B:</strong> Customer profile, revenue ranges, objectives, etc.
+                                <div className="space-y-6">
+                                    
+                                    {/* Customer Profile Section */}
+                                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <Building className="w-6 h-6 text-purple-900" />
+                                            <h2 className="text-xl font-semibold text-gray-800">Customer Profile</h2>
+                                        </div>
+                                        
+                                        <div className="space-y-6">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Annual Revenue (USD)</label>
+                                                <select 
+                                                    className="w-full p-4 text-lg border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    value={formData.annualRevenue}
+                                                    onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
+                                                >
+                                                    <option value="">Select Revenue Range</option>
+                                                    <option value="< 10M">&lt; $10M</option>
+                                                    <option value="10M - 50M">$10M - $50M</option>
+                                                    <option value="50M - 100M">$50M - $100M</option>
+                                                    <option value="100M - 500M">$100M - $500M</option>
+                                                    <option value="500M+">$500M+</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Budget Range</label>
+                                                <input 
+                                                    className="w-full p-4 text-lg border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    placeholder="e.g. $50K-100K annually"
+                                                    value={formData.budget}
+                                                    onChange={(e) => handleInputChange('budget', e.target.value)}
+                                                />
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">What are they looking to achieve with GoodData?</label>
+                                                <textarea 
+                                                    className="w-full p-4 text-lg border border-gray-300 rounded-lg bg-gray-50 resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    rows="4"
+                                                    placeholder="Describe their goals, objectives, and expected outcomes..."
+                                                    value={formData.objectives}
+                                                    onChange={(e) => handleInputChange('objectives', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Professional Services Section */}
+                                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <Users className="w-6 h-6 text-blue-600" />
+                                            <h2 className="text-xl font-semibold text-gray-800">Professional Services</h2>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Service Level</label>
+                                            <select 
+                                                className="w-full p-4 text-lg border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                value={formData.professionalServices}
+                                                onChange={(e) => handleInputChange('professionalServices', e.target.value)}
+                                            >
+                                                <option value="">Select Service Level</option>
+                                                <option value="Advisory">Advisory Package - 80 hours - $10,000</option>
+                                                <option value="Analytics">Analytics Package - 300 hours - $37,500</option>
+                                                <option value="End-to-end">End-to-end Implementation - 800 hours - $100,000</option>
+                                            </select>
+                                            
+                                            {formData.professionalServices && (
+                                                <div className="mt-3 p-4 bg-blue-50 rounded-lg">
+                                                    <div className="text-sm text-blue-800">
+                                                        {formData.professionalServices === 'Advisory' && (
+                                                            <div>
+                                                                <strong>Advisory Package includes:</strong>
+                                                                <ul className="mt-2 list-disc list-inside space-y-1">
+                                                                    <li>Strategic guidance and best practices</li>
+                                                                    <li>Architecture review and recommendations</li>
+                                                                    <li>Implementation roadmap</li>
+                                                                    <li>80 hours of expert consultation</li>
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                        {formData.professionalServices === 'Analytics' && (
+                                                            <div>
+                                                                <strong>Analytics Package includes:</strong>
+                                                                <ul className="mt-2 list-disc list-inside space-y-1">
+                                                                    <li>Analytics implementation and optimization</li>
+                                                                    <li>Dashboard and report development</li>
+                                                                    <li>Data modeling and integration</li>
+                                                                    <li>300 hours of expert implementation</li>
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                        {formData.professionalServices === 'End-to-end' && (
+                                                            <div>
+                                                                <strong>End-to-end Package includes:</strong>
+                                                                <ul className="mt-2 list-disc list-inside space-y-1">
+                                                                    <li>Complete implementation and deployment</li>
+                                                                    <li>Full data pipeline setup</li>
+                                                                    <li>Custom analytics and dashboards</li>
+                                                                    <li>Training and knowledge transfer</li>
+                                                                    <li>800 hours of comprehensive implementation</li>
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Premium Enterprise Features */}
+                                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                                        <h2 className="text-xl font-semibold text-gray-800 mb-6">Premium Enterprise Features</h2>
+                                        
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            {[
+                                                { 
+                                                    key: 'additionalEnvironments', 
+                                                    label: 'Additional Environments', 
+                                                    desc: 'Dev/Test/Staging environments for safe development', 
+                                                    price: pricing.additionalEnvironments 
+                                                },
+                                                { 
+                                                    key: 'samlOidc', 
+                                                    label: 'SAML & Multiple OIDC', 
+                                                    desc: 'Enterprise SSO integration for security', 
+                                                    price: pricing.samlOidc 
+                                                },
+                                                { 
+                                                    key: 'dataCenterRegions', 
+                                                    label: 'Data Center Regions', 
+                                                    desc: 'Multi-region deployment for compliance', 
+                                                    price: pricing.dataCenterRegions 
+                                                },
+                                                { 
+                                                    key: 'usageAnalytics', 
+                                                    label: 'Usage Analytics', 
+                                                    desc: 'Advanced usage reporting and insights', 
+                                                    price: pricing.usageAnalytics 
+                                                },
+                                                { 
+                                                    key: 'auditLog', 
+                                                    label: 'Audit Log', 
+                                                    desc: 'Comprehensive audit trails for compliance', 
+                                                    price: pricing.auditLog 
+                                                },
+                                                { 
+                                                    key: 'hipaaCompliance', 
+                                                    label: 'HIPAA Compliance', 
+                                                    desc: 'Healthcare data protection and compliance', 
+                                                    price: pricing.hipaaCompliance 
+                                                }
+                                            ].map(addon => (
+                                                <label key={addon.key} className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                                    <input 
+                                                        type="checkbox"
+                                                        checked={formData[addon.key]}
+                                                        onChange={(e) => handleInputChange(addon.key, e.target.checked)}
+                                                        className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 mt-0.5"
+                                                    />
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-gray-800 font-medium">{addon.label}</span>
+                                                            <span className="text-purple-600 font-semibold">${addon.price.toLocaleString()}</span>
+                                                        </div>
+                                                        <p className="text-sm text-gray-600">{addon.desc}</p>
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Comments Section */}
+                                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                                        <h2 className="text-xl font-semibold text-gray-800 mb-6">Internal Notes & Comments</h2>
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">AE Comments</label>
+                                                <textarea 
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    rows="4"
+                                                    placeholder="Account Executive notes, client feedback, special considerations..."
+                                                    value={formData.aeComments}
+                                                    onChange={(e) => handleInputChange('aeComments', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Finance Comments</label>
+                                                <textarea 
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                    rows="4"
+                                                    placeholder="Pricing adjustments, approval notes, payment terms..."
+                                                    value={formData.financeComments}
+                                                    onChange={(e) => handleInputChange('financeComments', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Summary Card */}
+                                    <div className="bg-gradient-to-br from-purple-900 to-pink-500 rounded-xl shadow-xl text-white p-6">
+                                        <h2 className="text-xl font-semibold mb-4">💰 Live Quote Summary</h2>
+                                        
+                                        <div className="grid md:grid-cols-3 gap-4">
+                                            <div className="bg-white/10 rounded-lg p-4">
+                                                <div className="text-sm opacity-90 mb-1">Total Annual</div>
+                                                <div className="text-2xl font-bold">
+                                                    ${calculateTotal().toLocaleString()}
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-white/10 rounded-lg p-4">
+                                                <div className="text-sm opacity-90 mb-1">Monthly Equivalent</div>
+                                                <div className="text-2xl font-bold">
+                                                    ${(calculateTotal()/12).toLocaleString()}
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-white/10 rounded-lg p-4">
+                                                <div className="text-sm opacity-90 mb-1">Implementation</div>
+                                                <div className="text-lg font-bold">
+                                                    {formData.professionalServices === 'End-to-end' ? '16-20 weeks' :
+                                                     formData.professionalServices === 'Analytics' ? '8-12 weeks' :
+                                                     formData.professionalServices === 'Advisory' ? '4-6 weeks' : 'TBD'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-4 text-sm bg-white/20 rounded-lg p-3">
+                                            <strong>🚀 Step 2B Complete!</strong> Professional customer qualification forms with live calculations!
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
+                            {/* Placeholder tabs - same as Step 2A */}
                             {activeTab === 'pricing' && (
                                 <div className="bg-gray-50 rounded-xl p-8 text-center">
                                     <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
                                     <h3 className="text-xl font-semibold text-gray-800 mb-2">Detailed Pricing Breakdown</h3>
-                                    <p className="text-gray-600">📊 This tab will show comprehensive pricing details in the next micro-step!</p>
+                                    <p className="text-gray-600">📊 This tab will show comprehensive pricing details in Step 2C!</p>
                                     <div className="mt-4 text-sm text-blue-600 bg-blue-50 rounded-lg p-3">
-                                        <strong>Coming in Step 2C:</strong> Line-by-line pricing, professional services, add-ons, etc.
+                                        <strong>Coming in Step 2C:</strong> Line-by-line pricing, cost breakdowns, editable pricing components, etc.
                                     </div>
                                 </div>
                             )}
@@ -663,7 +890,7 @@
                                 <div className="bg-gray-50 rounded-xl p-8 text-center">
                                     <Settings className="w-16 h-16 mx-auto text-gray-400 mb-4" />
                                     <h3 className="text-xl font-semibold text-gray-800 mb-2">Advanced Settings</h3>
-                                    <p className="text-gray-600">⚙️ This tab will contain advanced configuration options in the next micro-step!</p>
+                                    <p className="text-gray-600">⚙️ This tab will contain advanced configuration options in Step 2D!</p>
                                     <div className="mt-4 text-sm text-green-600 bg-green-50 rounded-lg p-3">
                                         <strong>Coming in Step 2D:</strong> Pricing adjustments, enterprise features, custom configurations, etc.
                                     </div>
