@@ -1268,9 +1268,16 @@
                                         <div className="text-2xl font-bold">
                                             Total: ${calculateTotal().toLocaleString()}
                                         </div>
-                                        <div className="text-sm opacity-90">
+                                        <div className="text-sm opacity-90 mb-4">
                                             Annual Contract Value
                                         </div>
+                                        <button
+                                            onClick={handleSaveClick}
+                                            disabled={loading || !formData.prospectName}
+                                            className="w-full bg-white text-purple-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                                        >
+                                            {loading ? '🔄 Saving...' : '💾 Save Quote'}
+                                        </button>
                                     </div>
                                 </div>
                                 
