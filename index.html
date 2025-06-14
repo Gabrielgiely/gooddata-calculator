@@ -947,124 +947,95 @@
                                     <h2 className="text-2xl font-bold">Pricing Summary</h2>
                                 </div>
                                 
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div className="bg-white/10 rounded-lg p-4">
-                                        <h3 className="text-lg font-semibold mb-4">Annual Breakdown</h3>
-                                        <div className="space-y-2 text-sm">
-                                            {formData.license === 'Professional' && (
-                                                <div className="flex justify-between">
-                                                    <span>Professional License:</span>
-                                                    <span>${pricing.professionalLicense.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.license === 'Enterprise' && (
-                                                <div className="flex justify-between">
-                                                    <span>Enterprise License:</span>
-                                                    <span>${pricing.enterpriseLicense.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {!formData.license && (
-                                                <div className="flex justify-between">
-                                                    <span>Platform Fee:</span>
-                                                    <span>${pricing.platformFee.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {parseInt(formData.biWorkspaces) > 0 && (
-                                                <div className="flex justify-between">
-                                                    <span>BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo):</span>
-                                                    <span>${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {parseInt(formData.aiWorkspaces) > 0 && (
-                                                <div className="flex justify-between">
-                                                    <span>AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo):</span>
-                                                    <span>${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.llmProvider && formData.package && (
-                                                <div className="flex justify-between">
-                                                    <span>LLM Package ({formData.llmProvider} {formData.package}):</span>
-                                                    <span>${(pricing.llmPackages[formData.llmProvider]?.[formData.package] * 12 || 0).toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {getProfessionalServicesCost() > 0 && (
-                                                <div className="flex justify-between">
-                                                    <span>Professional Services:</span>
-                                                    <span>${getProfessionalServicesCost().toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.additionalEnvironments && (
-                                                <div className="flex justify-between">
-                                                    <span>Additional Environments:</span>
-                                                    <span>${pricing.additionalEnvironments.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.samlOidc && (
-                                                <div className="flex justify-between">
-                                                    <span>SAML/OIDC:</span>
-                                                    <span>${pricing.samlOidc.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.dataCenterRegions && (
-                                                <div className="flex justify-between">
-                                                    <span>Data Center Regions:</span>
-                                                    <span>${pricing.dataCenterRegions.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.usageAnalytics && (
-                                                <div className="flex justify-between">
-                                                    <span>Usage Analytics:</span>
-                                                    <span>${pricing.usageAnalytics.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.auditLog && (
-                                                <div className="flex justify-between">
-                                                    <span>Audit Log:</span>
-                                                    <span>${pricing.auditLog.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.hipaaCompliance && (
-                                                <div className="flex justify-between">
-                                                    <span>HIPAA Compliance:</span>
-                                                    <span>${pricing.hipaaCompliance.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                        </div>
+                                <div className="bg-white/10 rounded-lg p-6">
+                                    <h3 className="text-lg font-semibold mb-4">Annual Breakdown</h3>
+                                    <div className="space-y-2 text-sm">
+                                        {formData.license === 'Professional' && (
+                                            <div className="flex justify-between">
+                                                <span>Professional License:</span>
+                                                <span>${pricing.professionalLicense.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.license === 'Enterprise' && (
+                                            <div className="flex justify-between">
+                                                <span>Enterprise License:</span>
+                                                <span>${pricing.enterpriseLicense.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {!formData.license && (
+                                            <div className="flex justify-between">
+                                                <span>Platform Fee:</span>
+                                                <span>${pricing.platformFee.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {parseInt(formData.biWorkspaces) > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo):</span>
+                                                <span>${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {parseInt(formData.aiWorkspaces) > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo):</span>
+                                                <span>${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.llmProvider && formData.package && (
+                                            <div className="flex justify-between">
+                                                <span>LLM Package ({formData.llmProvider} {formData.package}):</span>
+                                                <span>${(pricing.llmPackages[formData.llmProvider]?.[formData.package] * 12 || 0).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {getProfessionalServicesCost() > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>Professional Services:</span>
+                                                <span>${getProfessionalServicesCost().toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.additionalEnvironments && (
+                                            <div className="flex justify-between">
+                                                <span>Additional Environments:</span>
+                                                <span>${pricing.additionalEnvironments.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.samlOidc && (
+                                            <div className="flex justify-between">
+                                                <span>SAML/OIDC:</span>
+                                                <span>${pricing.samlOidc.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.dataCenterRegions && (
+                                            <div className="flex justify-between">
+                                                <span>Data Center Regions:</span>
+                                                <span>${pricing.dataCenterRegions.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.usageAnalytics && (
+                                            <div className="flex justify-between">
+                                                <span>Usage Analytics:</span>
+                                                <span>${pricing.usageAnalytics.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.auditLog && (
+                                            <div className="flex justify-between">
+                                                <span>Audit Log:</span>
+                                                <span>${pricing.auditLog.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.hipaaCompliance && (
+                                            <div className="flex justify-between">
+                                                <span>HIPAA Compliance:</span>
+                                                <span>${pricing.hipaaCompliance.toLocaleString()}</span>
+                                            </div>
+                                        )}
                                     </div>
                                     
-                                    <div className="bg-white/10 rounded-lg p-4">
-                                        <h3 className="text-lg font-semibold mb-4">Customer Information</h3>
-                                        <div className="space-y-2 text-sm">
-                                            {formData.prospectName && (
-                                                <div><strong>Company:</strong> {formData.prospectName}</div>
-                                            )}
-                                            {formData.clientWebsite && (
-                                                <div><strong>Website:</strong> {formData.clientWebsite}</div>
-                                            )}
-                                            {formData.annualRevenue && (
-                                                <div><strong>Revenue:</strong> {formData.annualRevenue}</div>
-                                            )}
-                                            {formData.numberOfEmployees && (
-                                                <div><strong>Employees:</strong> {formData.numberOfEmployees}</div>
-                                            )}
-                                            {formData.usageScope && (
-                                                <div><strong>Scope:</strong> {formData.usageScope}</div>
-                                            )}
-                                            {formData.monetization && (
-                                                <div><strong>Monetization:</strong> {formData.monetization}</div>
-                                            )}
-                                            {formData.growthOpportunity && (
-                                                <div><strong>Growth:</strong> {formData.growthOpportunity}</div>
-                                            )}
+                                    <div className="mt-6 pt-4 border-t border-white/20">
+                                        <div className="text-2xl font-bold">
+                                            Total: ${calculateTotal().toLocaleString()}
                                         </div>
-                                        
-                                        <div className="mt-6 pt-4 border-t border-white/20">
-                                            <div className="text-2xl font-bold">
-                                                Total: ${calculateTotal().toLocaleString()}
-                                            </div>
-                                            <div className="text-sm opacity-90">
-                                                Annual Contract Value
-                                            </div>
+                                        <div className="text-sm opacity-90">
+                                            Annual Contract Value
                                         </div>
                                     </div>
                                 </div>
