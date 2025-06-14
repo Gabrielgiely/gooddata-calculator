@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+const handleInputChange = (field, value) => {<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -106,6 +106,7 @@
             const [templateCode, setTemplateCode] = useState('');
             const [message, setMessage] = useState('');
             const [loading, setLoading] = useState(false);
+            const [editMode, setEditMode] = useState(false);
             
             const [formData, setFormData] = useState({
                 prospectName: '',
@@ -130,7 +131,7 @@
                 hipaaCompliance: false
             });
 
-            const pricing = {
+            const [pricing, setPricing] = useState({
                 platformFee: 36000,
                 biWorkspacePrice: 25,
                 aiWorkspacePrice: 10,
@@ -147,9 +148,24 @@
                     'Customer': { 'Small': 100, 'Medium': 430, 'Large': 750 },
                     'GoodData': { 'Small': 200, 'Medium': 750, 'Large': 900 }
                 }
+            });
+
+            const updatePricing = (field, value) => {
+                setPricing(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
             };
 
-            const handleInputChange = (field, value) => {
+            const updateLLMPricing = (provider, size, value) => {
+                setPricing(prev => ({
+                    ...prev,
+                    llmPackages: {
+                        ...prev.llmPackages,
+                        [provider]: {
+                            ...prev.llmPackages[provider],
+                            [size]: parseInt(value) || 0
+                        }
+                    }
+                }));
+            };
                 setFormData(prev => {
                     const newData = { ...prev, [field]: value };
                     if (field === 'totalWorkspaces') {
@@ -636,19 +652,44 @@
 
                                 {/* Detailed Pricing Breakdown */}
                                 <div className="bg-white/10 rounded-lg p-6 space-y-4">
-                                    <h3 className="text-lg font-semibold mb-4 text-center">Pricing Breakdown</h3>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-semibold">Pricing Breakdown</h3>
+                                        <button
+                                            onClick={() => setEditMode(!editMode)}
+                                            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
+                                        >
+                                            {editMode ? '✅ Done Editing' : '✏️ Edit Pricing'}
+                                        </button>
+                                    </div>
                                     
                                     {/* Platform Base Fee - Always shown */}
                                     <div className="flex justify-between items-center py-2 border-b border-white/20">
                                         <span className="text-white/90">Platform Base Fee</span>
-                                        <span className="font-semibold">${pricing.platformFee.toLocaleString()}</span>
+                                        {editMode ? (
+                                            <input
+                                                type="number"
+                                                value={pricing.platformFee}
+                                                onChange={(e) => updatePricing('platformFee', e.target.value)}
+                                                className="w-24 p-1 text-gray-900 rounded text-right"
+                                            />
+                                        ) : (
+                                            <span className="font-semibold">${pricing.platformFee.toLocaleString()}</span>
+                                        )}
                                     </div>
 
                                     {/* BI Workspaces - Only show if > 0 */}
                                     {formData.biWorkspaces && parseInt(formData.biWorkspaces) > 0 && (
                                         <div className="flex justify-between items-center py-2 border-b border-white/20">
                                             <span className="text-white/90">
-                                                BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo × 12)
+                                                BI Workspaces ({formData.biWorkspaces} × ${editMode ? '' : pricing.biWorkspacePrice}/mo × 12)
+                                                {editMode && (
+                                                    <input
+                                                        type="number"
+                                                        value={pricing.biWorkspacePrice}
+                                                        onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
+                                                        className="w-16 p-1 ml-2 text-gray-900 rounded text-center"
+                                                    />
+                                                )}
                                             </span>
                                             <span className="font-semibold">
                                                 ${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}
@@ -660,7 +701,15 @@
                                     {formData.aiWorkspaces && parseInt(formData.aiWorkspaces) > 0 && (
                                         <div className="flex justify-between items-center py-2 border-b border-white/20">
                                             <span className="text-white/90">
-                                                AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo × 12)
+                                                AI Workspaces ({formData.aiWorkspaces} × ${editMode ? '' : pricing.aiWorkspacePrice}/mo × 12)
+                                                {editMode && (
+                                                    <input
+                                                        type="number"
+                                                        value={pricing.aiWorkspacePrice}
+                                                        onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
+                                                        className="w-16 p-1 ml-2 text-gray-900 rounded text-center"
+                                                    />
+                                                )}
                                             </span>
                                             <span className="font-semibold">
                                                 ${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}
@@ -672,7 +721,15 @@
                                     {formData.llmProvider && formData.package && (
                                         <div className="flex justify-between items-center py-2 border-b border-white/20">
                                             <span className="text-white/90">
-                                                {formData.llmProvider} LLM {formData.package} (${pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}/mo × 12)
+                                                {formData.llmProvider} LLM {formData.package} (${editMode ? '' : pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}/mo × 12)
+                                                {editMode && (
+                                                    <input
+                                                        type="number"
+                                                        value={pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}
+                                                        onChange={(e) => updateLLMPricing(formData.llmProvider, formData.package, e.target.value)}
+                                                        className="w-16 p-1 ml-2 text-gray-900 rounded text-center"
+                                                    />
+                                                )}
                                             </span>
                                             <span className="font-semibold">
                                                 ${((pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0) * 12).toLocaleString()}
@@ -686,54 +743,48 @@
                                             <span className="text-white/90">
                                                 Professional Services - {formData.professionalServices}
                                             </span>
-                                            <span className="font-semibold">
-                                                ${getProfessionalServicesCost().toLocaleString()}
-                                            </span>
+                                            {editMode ? (
+                                                <input
+                                                    type="number"
+                                                    value={getProfessionalServicesCost()}
+                                                    onChange={(e) => {
+                                                        const field = formData.professionalServices === 'Advisory' ? 'advisory' :
+                                                                     formData.professionalServices === 'Analytics' ? 'analytics' : 'endToEnd';
+                                                        updatePricing(field, e.target.value);
+                                                    }}
+                                                    className="w-24 p-1 text-gray-900 rounded text-right"
+                                                />
+                                            ) : (
+                                                <span className="font-semibold">
+                                                    ${getProfessionalServicesCost().toLocaleString()}
+                                                </span>
+                                            )}
                                         </div>
                                     )}
 
                                     {/* Premium Add-ons - Only show selected ones */}
-                                    {formData.additionalEnvironments && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">Additional Environments</span>
-                                            <span className="font-semibold">${pricing.additionalEnvironments.toLocaleString()}</span>
+                                    {[
+                                        { key: 'additionalEnvironments', label: 'Additional Environments', field: 'additionalEnvironments' },
+                                        { key: 'samlOidc', label: 'SAML & Multiple OIDC', field: 'samlOidc' },
+                                        { key: 'dataCenterRegions', label: 'Data Center Regions', field: 'dataCenterRegions' },
+                                        { key: 'usageAnalytics', label: 'Usage Analytics', field: 'usageAnalytics' },
+                                        { key: 'auditLog', label: 'Audit Log', field: 'auditLog' },
+                                        { key: 'hipaaCompliance', label: 'HIPAA Compliance', field: 'hipaaCompliance' }
+                                    ].filter(addon => formData[addon.key]).map(addon => (
+                                        <div key={addon.key} className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">{addon.label}</span>
+                                            {editMode ? (
+                                                <input
+                                                    type="number"
+                                                    value={pricing[addon.field]}
+                                                    onChange={(e) => updatePricing(addon.field, e.target.value)}
+                                                    className="w-20 p-1 text-gray-900 rounded text-right"
+                                                />
+                                            ) : (
+                                                <span className="font-semibold">${pricing[addon.field].toLocaleString()}</span>
+                                            )}
                                         </div>
-                                    )}
-
-                                    {formData.samlOidc && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">SAML & Multiple OIDC</span>
-                                            <span className="font-semibold">${pricing.samlOidc.toLocaleString()}</span>
-                                        </div>
-                                    )}
-
-                                    {formData.dataCenterRegions && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">Data Center Regions</span>
-                                            <span className="font-semibold">${pricing.dataCenterRegions.toLocaleString()}</span>
-                                        </div>
-                                    )}
-
-                                    {formData.usageAnalytics && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">Usage Analytics</span>
-                                            <span className="font-semibold">${pricing.usageAnalytics.toLocaleString()}</span>
-                                        </div>
-                                    )}
-
-                                    {formData.auditLog && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">Audit Log</span>
-                                            <span className="font-semibold">${pricing.auditLog.toLocaleString()}</span>
-                                        </div>
-                                    )}
-
-                                    {formData.hipaaCompliance && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">HIPAA Compliance</span>
-                                            <span className="font-semibold">${pricing.hipaaCompliance.toLocaleString()}</span>
-                                        </div>
-                                    )}
+                                    ))}
 
                                     {/* Total Line */}
                                     <div className="flex justify-between items-center pt-4 text-lg font-bold border-t-2 border-white/30">
