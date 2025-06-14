@@ -1,9 +1,9 @@
-const calculateTotal = () => {<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodData Calculator - GitHub + Supabase Edition</title>
+    <title>GoodData Calculator</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -18,13 +18,48 @@ const calculateTotal = () => {<!DOCTYPE html>
     <script type="text/babel">
         const { useState } = React;
 
-        // Icons
-        const Calculator = () => <svg className="lucide" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="m16 10-4 4-4-4"/></svg>;
-        const Database = () => <svg className="lucide" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="m3 5v14c0 3 4 3 9 3s9 0 9-3V5"/><path d="m3 12c0 3 4 3 9 3s9 0 9-3"/></svg>;
-        const Users = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m22 21-3-3"/><path d="m16 8 2-2"/></svg>;
-        const Building = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12h4"/><path d="M6 8h4"/><path d="M6 16h4"/><path d="M14 12h4"/><path d="M14 16h4"/><path d="M14 8h4"/><path d="M6 22h12"/></svg>;
-        const DollarSign = () => <svg className="lucide" viewBox="0 0 24 24"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
-        const Globe = () => <svg className="lucide" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
+        // Simple icons
+        const Calculator = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <rect width="16" height="20" x="4" y="2" rx="2"/>
+                <line x1="8" x2="16" y1="6" y2="6"/>
+            </svg>
+        );
+
+        const Database = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                <path d="m3 5v14c0 3 4 3 9 3s9 0 9-3V5"/>
+            </svg>
+        );
+
+        const Users = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+            </svg>
+        );
+
+        const Building = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                <path d="M6 12h4"/>
+            </svg>
+        );
+
+        const DollarSign = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <line x1="12" x2="12" y1="2" y2="22"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+        );
+
+        const Globe = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="m12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+            </svg>
+        );
 
         // Supabase Storage
         class SupabaseStorage {
@@ -32,76 +67,36 @@ const calculateTotal = () => {<!DOCTYPE html>
                 this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
                 this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzYXh2cGN3bG14ZGJpZXRtanJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2NzQwOTYsImV4cCI6MjA2NTI1MDA5Nn0.SnjvZx-xVMwtPBe62xY66y6vi1CQq4F04AOy53oRPDE';
                 this.quotes = new Map();
-                this.isProduction = window.location.hostname !== 'claude.ai' && window.location.hostname !== 'localhost';
-                console.log(this.isProduction ? '🌍 Production mode: Supabase enabled' : '🔧 Demo mode');
-            }
-
-            async callSupabase(method, endpoint, body = null) {
-                const url = `${this.supabaseUrl}/rest/v1/${endpoint}`;
-                const options = {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': this.supabaseKey,
-                        'Authorization': `Bearer ${this.supabaseKey}`,
-                        'Prefer': 'return=minimal'
-                    }
-                };
-                if (body) options.body = JSON.stringify(body);
-                
-                const response = await fetch(url, options);
-                if (response.ok) {
-                    return method === 'GET' ? await response.json() : { success: true };
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
+                this.isProduction = window.location.hostname !== 'claude.ai';
             }
 
             async save(code, data) {
-                this.quotes.set(code, { data, timestamp: new Date().toISOString(), code });
-                
+                this.quotes.set(code, { data, timestamp: new Date().toISOString() });
                 if (this.isProduction) {
                     try {
-                        const existing = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=id`);
-                        if (existing && existing.length > 0) {
-                            await this.callSupabase('PATCH', `Quotes?code=eq.${code}`, { data, updated_at: new Date().toISOString() });
-                        } else {
-                            await this.callSupabase('POST', 'Quotes', { code, data, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
-                        }
-                        return { success: true, code, cloudSaved: true };
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            },
+                            body: JSON.stringify({ code, data, created_at: new Date().toISOString() })
+                        });
+                        return { success: response.ok, code, cloudSaved: response.ok };
                     } catch (error) {
                         return { success: false, code, error: error.message };
                     }
-                } else {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    return { success: true, code, cloudSaved: false };
                 }
+                return { success: true, code, cloudSaved: false };
             }
 
             async load(code) {
-                if (this.isProduction) {
-                    try {
-                        const data = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=*`);
-                        if (data && data.length > 0) {
-                            const record = data[0];
-                            this.quotes.set(code, { data: record.data, timestamp: record.updated_at, code });
-                            return { success: true, data: record.data, code, source: 'supabase', timestamp: record.updated_at };
-                        }
-                    } catch (e) {
-                        console.log('Supabase load failed:', e.message);
-                    }
-                }
-                
                 if (this.quotes.has(code)) {
                     const quoteData = this.quotes.get(code);
-                    return { success: true, data: quoteData.data, code, source: 'memory', timestamp: quoteData.timestamp };
+                    return { success: true, data: quoteData.data, code };
                 }
-                
                 return { success: false, error: 'Quote not found', code };
-            }
-
-            getAllCodes() {
-                return Array.from(this.quotes.keys()).sort();
             }
         }
 
@@ -111,7 +106,6 @@ const calculateTotal = () => {<!DOCTYPE html>
             const [templateCode, setTemplateCode] = useState('');
             const [message, setMessage] = useState('');
             const [loading, setLoading] = useState(false);
-            const [cloudStatus, setCloudStatus] = useState('');
             
             const [formData, setFormData] = useState({
                 prospectName: '',
@@ -158,22 +152,14 @@ const calculateTotal = () => {<!DOCTYPE html>
             const handleInputChange = (field, value) => {
                 setFormData(prev => {
                     const newData = { ...prev, [field]: value };
-                    
-                    // Mirror Total Workspaces to BI Workspaces automatically
                     if (field === 'totalWorkspaces') {
                         newData.biWorkspaces = value;
                     }
-                    
                     return newData;
                 });
             };
 
-            const getProfessionalServicesCost = () => {
-                if (formData.professionalServices === 'Advisory') return pricing.advisory;
-                if (formData.professionalServices === 'Analytics') return pricing.analytics;
-                if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
-                return 0;
-            };
+            const calculateTotal = () => {
                 const bi = parseInt(formData.biWorkspaces) || 0;
                 const ai = parseInt(formData.aiWorkspaces) || 0;
                 let total = pricing.platformFee + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
@@ -196,6 +182,13 @@ const calculateTotal = () => {<!DOCTYPE html>
                 return total;
             };
 
+            const getProfessionalServicesCost = () => {
+                if (formData.professionalServices === 'Advisory') return pricing.advisory;
+                if (formData.professionalServices === 'Analytics') return pricing.analytics;
+                if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
+                return 0;
+            };
+
             const generateCode = () => {
                 let companyPart = 'PROSPECT';
                 if (formData.prospectName) {
@@ -210,27 +203,23 @@ const calculateTotal = () => {<!DOCTYPE html>
 
             const saveQuote = async () => {
                 if (!formData.prospectName) {
-                    setMessage('❌ Please enter a prospect name before saving');
+                    setMessage('❌ Please enter a prospect name');
                     setTimeout(() => setMessage(''), 3000);
                     return;
                 }
 
                 const code = generateCode();
                 setLoading(true);
-                setMessage(cloudStorage.isProduction ? '🔄 Saving to Supabase...' : '🔄 Demo mode - saving locally...');
+                setMessage('🔄 Saving quote...');
                 
                 try {
                     const result = await cloudStorage.save(code, formData);
-                    if (result.success && result.cloudSaved) {
-                        setMessage(`✅ Quote saved to cloud: ${code} - Share globally! 🌍`);
-                        setCloudStatus('☁️ Successfully saved to Supabase');
-                    } else if (result.success) {
-                        setMessage(`✅ Quote saved locally: ${code}`);
-                        setCloudStatus('💾 Saved locally');
+                    if (result.success) {
+                        setMessage(`✅ Quote saved: ${code}`);
                     } else {
                         setMessage(`❌ Save failed: ${result.error}`);
                     }
-                    setTimeout(() => { setMessage(''); setCloudStatus(''); }, 5000);
+                    setTimeout(() => setMessage(''), 5000);
                 } catch (error) {
                     setMessage('❌ Save failed');
                     setTimeout(() => setMessage(''), 3000);
@@ -252,13 +241,12 @@ const calculateTotal = () => {<!DOCTYPE html>
                     const result = await cloudStorage.load(templateCode.toUpperCase());
                     if (result.success) {
                         setFormData(result.data);
-                        setMessage(`✅ Quote "${result.code}" loaded from ${result.source}!`);
+                        setMessage(`✅ Quote loaded: ${result.code}`);
                         setTemplateCode('');
-                        setTimeout(() => setMessage(''), 5000);
                     } else {
-                        setMessage(`❌ Quote "${templateCode.toUpperCase()}" not found`);
-                        setTimeout(() => setMessage(''), 4000);
+                        setMessage(`❌ Quote not found: ${templateCode.toUpperCase()}`);
                     }
+                    setTimeout(() => setMessage(''), 5000);
                 } catch (error) {
                     setMessage('❌ Load failed');
                     setTimeout(() => setMessage(''), 3000);
@@ -278,7 +266,7 @@ const calculateTotal = () => {<!DOCTYPE html>
                                 <div className="flex-1">
                                     <h1 className="text-2xl font-bold mb-2">🌍 GOODDATA CALCULATOR</h1>
                                     <div className="text-sm bg-white/20 rounded-lg p-3">
-                                        Working calculator with Supabase cloud storage and cross-device quote sharing!
+                                        Professional pricing calculator with detailed breakdown and quote sharing!
                                     </div>
                                 </div>
                             </div>
@@ -323,7 +311,7 @@ const calculateTotal = () => {<!DOCTYPE html>
                                         <div className="flex gap-2 mb-2">
                                             <input 
                                                 type="text"
-                                                placeholder="Enter code (e.g., MICROSOFT-JUN13)"
+                                                placeholder="Enter code"
                                                 value={templateCode}
                                                 onChange={(e) => setTemplateCode(e.target.value)}
                                                 className="flex-1 p-2 text-gray-900 rounded"
@@ -349,7 +337,7 @@ const calculateTotal = () => {<!DOCTYPE html>
                                             {loading ? '🔄 Saving...' : '☁️ SAVE'}
                                         </button>
                                         {formData.prospectName && (
-                                            <p className="text-white/80 text-sm">Ready to save as: <strong>{generateCode()}</strong></p>
+                                            <p className="text-white/80 text-sm">Code: <strong>{generateCode()}</strong></p>
                                         )}
                                     </div>
                                 </div>
@@ -361,7 +349,6 @@ const calculateTotal = () => {<!DOCTYPE html>
                                 )}
                             </div>
 
-                            {/* Customer Profile */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <Building className="w-6 h-6 text-purple-900" />
@@ -408,7 +395,6 @@ const calculateTotal = () => {<!DOCTYPE html>
                                 </div>
                             </div>
 
-                            {/* Usage Plan Assessment */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <h2 className="text-xl font-semibold text-gray-800 mb-6">Usage Plan Assessment</h2>
                                 
@@ -499,7 +485,6 @@ const calculateTotal = () => {<!DOCTYPE html>
                                 </div>
                             </div>
 
-                            {/* Workspace Configuration */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <Database className="w-6 h-6 text-pink-500" />
@@ -582,7 +567,6 @@ const calculateTotal = () => {<!DOCTYPE html>
                                 </div>
                             </div>
 
-                            {/* Professional Services */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <Users className="w-6 h-6 text-blue-600" />
@@ -604,7 +588,6 @@ const calculateTotal = () => {<!DOCTYPE html>
                                 </div>
                             </div>
 
-                            {/* Premium Features */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <h2 className="text-xl font-semibold text-gray-800 mb-6">Premium Enterprise Features</h2>
                                 
@@ -761,7 +744,7 @@ const calculateTotal = () => {<!DOCTYPE html>
 
                                 <div className="mt-4 text-sm bg-white/20 rounded-lg p-3">
                                     <strong>✅ Working Calculator!</strong><br/>
-                                    Simple, clean version with Supabase cloud storage and cross-device quote sharing!
+                                    Complete pricing breakdown with Supabase cloud storage and cross-device quote sharing!
                                 </div>
                             </div>
                         </div>
