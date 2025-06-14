@@ -699,6 +699,7 @@
                                 
                                 {editMode && (
                                     <div className="space-y-6">
+                                        {/* Always show platform fee */}
                                         <div className="grid md:grid-cols-3 gap-4">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">Platform Fee</label>
@@ -709,182 +710,226 @@
                                                     onChange={(e) => updatePricing('platformFee', e.target.value)}
                                                 />
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspace (monthly)</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.biWorkspacePrice}
-                                                    onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspace (monthly)</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.aiWorkspacePrice}
-                                                    onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid md:grid-cols-3 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Advisory Package</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.advisory}
-                                                    onChange={(e) => updatePricing('advisory', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Analytics Package</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.analytics}
-                                                    onChange={(e) => updatePricing('analytics', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">End-to-end Package</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.endToEnd}
-                                                    onChange={(e) => updatePricing('endToEnd', e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="border-t pt-6">
-                                            <h3 className="text-lg font-semibold mb-4">LLM Package Pricing (Monthly)</h3>
-                                            <div className="grid md:grid-cols-2 gap-6">
+                                            {/* Only show BI workspace pricing if BI workspaces are configured */}
+                                            {(parseInt(formData.biWorkspaces) > 0) && (
                                                 <div>
-                                                    <h4 className="font-medium mb-3">Customer Provider</h4>
-                                                    <div className="space-y-2">
-                                                        <div className="flex gap-2">
-                                                            <label className="w-16 text-sm">Small:</label>
-                                                            <input 
-                                                                type="number"
-                                                                className="flex-1 p-2 border border-gray-300 rounded"
-                                                                value={pricing.llmPackages.Customer.Small}
-                                                                onChange={(e) => updateLLMPricing('Customer', 'Small', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <label className="w-16 text-sm">Medium:</label>
-                                                            <input 
-                                                                type="number"
-                                                                className="flex-1 p-2 border border-gray-300 rounded"
-                                                                value={pricing.llmPackages.Customer.Medium}
-                                                                onChange={(e) => updateLLMPricing('Customer', 'Medium', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <label className="w-16 text-sm">Large:</label>
-                                                            <input 
-                                                                type="number"
-                                                                className="flex-1 p-2 border border-gray-300 rounded"
-                                                                value={pricing.llmPackages.Customer.Large}
-                                                                onChange={(e) => updateLLMPricing('Customer', 'Large', e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspace (monthly)</label>
+                                                    <input 
+                                                        type="number"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg"
+                                                        value={pricing.biWorkspacePrice}
+                                                        onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
+                                                    />
                                                 </div>
+                                            )}
+                                            {/* Only show AI workspace pricing if AI workspaces are configured */}
+                                            {(parseInt(formData.aiWorkspaces) > 0) && (
                                                 <div>
-                                                    <h4 className="font-medium mb-3">GoodData Provider</h4>
-                                                    <div className="space-y-2">
-                                                        <div className="flex gap-2">
-                                                            <label className="w-16 text-sm">Small:</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspace (monthly)</label>
+                                                    <input 
+                                                        type="number"
+                                                        className="w-full p-3 border border-gray-300 rounded-lg"
+                                                        value={pricing.aiWorkspacePrice}
+                                                        onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Only show professional services pricing if any service is selected */}
+                                        {formData.professionalServices && (
+                                            <div className="border-t pt-6">
+                                                <h3 className="text-lg font-semibold mb-4">Professional Services</h3>
+                                                <div className="grid md:grid-cols-3 gap-4">
+                                                    {formData.professionalServices === 'Advisory' && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">Advisory Package</label>
                                                             <input 
                                                                 type="number"
-                                                                className="flex-1 p-2 border border-gray-300 rounded"
-                                                                value={pricing.llmPackages.GoodData.Small}
-                                                                onChange={(e) => updateLLMPricing('GoodData', 'Small', e.target.value)}
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.advisory}
+                                                                onChange={(e) => updatePricing('advisory', e.target.value)}
                                                             />
                                                         </div>
-                                                        <div className="flex gap-2">
-                                                            <label className="w-16 text-sm">Medium:</label>
+                                                    )}
+                                                    {formData.professionalServices === 'Analytics' && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">Analytics Package</label>
                                                             <input 
                                                                 type="number"
-                                                                className="flex-1 p-2 border border-gray-300 rounded"
-                                                                value={pricing.llmPackages.GoodData.Medium}
-                                                                onChange={(e) => updateLLMPricing('GoodData', 'Medium', e.target.value)}
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.analytics}
+                                                                onChange={(e) => updatePricing('analytics', e.target.value)}
                                                             />
                                                         </div>
-                                                        <div className="flex gap-2">
-                                                            <label className="w-16 text-sm">Large:</label>
+                                                    )}
+                                                    {formData.professionalServices === 'End-to-end' && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">End-to-end Package</label>
                                                             <input 
                                                                 type="number"
-                                                                className="flex-1 p-2 border border-gray-300 rounded"
-                                                                value={pricing.llmPackages.GoodData.Large}
-                                                                onChange={(e) => updateLLMPricing('GoodData', 'Large', e.target.value)}
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.endToEnd}
+                                                                onChange={(e) => updatePricing('endToEnd', e.target.value)}
                                                             />
                                                         </div>
-                                                    </div>
+                                                    )}
                                                 </div>
                                             </div>
-                                        </div>
+                                        )}
 
-                                        <div className="grid md:grid-cols-3 gap-4 border-t pt-6">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Environments</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.additionalEnvironments}
-                                                    onChange={(e) => updatePricing('additionalEnvironments', e.target.value)}
-                                                />
+                                        {/* Only show LLM pricing if provider and package are selected */}
+                                        {formData.llmProvider && formData.package && (
+                                            <div className="border-t pt-6">
+                                                <h3 className="text-lg font-semibold mb-4">LLM Package Pricing (Monthly)</h3>
+                                                <div className="grid md:grid-cols-2 gap-6">
+                                                    {formData.llmProvider === 'Customer' && (
+                                                        <div>
+                                                            <h4 className="font-medium mb-3">Customer Provider</h4>
+                                                            <div className="space-y-2">
+                                                                <div className="flex gap-2">
+                                                                    <label className="w-16 text-sm">Small:</label>
+                                                                    <input 
+                                                                        type="number"
+                                                                        className="flex-1 p-2 border border-gray-300 rounded"
+                                                                        value={pricing.llmPackages.Customer.Small}
+                                                                        onChange={(e) => updateLLMPricing('Customer', 'Small', e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <label className="w-16 text-sm">Medium:</label>
+                                                                    <input 
+                                                                        type="number"
+                                                                        className="flex-1 p-2 border border-gray-300 rounded"
+                                                                        value={pricing.llmPackages.Customer.Medium}
+                                                                        onChange={(e) => updateLLMPricing('Customer', 'Medium', e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <label className="w-16 text-sm">Large:</label>
+                                                                    <input 
+                                                                        type="number"
+                                                                        className="flex-1 p-2 border border-gray-300 rounded"
+                                                                        value={pricing.llmPackages.Customer.Large}
+                                                                        onChange={(e) => updateLLMPricing('Customer', 'Large', e.target.value)}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {formData.llmProvider === 'GoodData' && (
+                                                        <div>
+                                                            <h4 className="font-medium mb-3">GoodData Provider</h4>
+                                                            <div className="space-y-2">
+                                                                <div className="flex gap-2">
+                                                                    <label className="w-16 text-sm">Small:</label>
+                                                                    <input 
+                                                                        type="number"
+                                                                        className="flex-1 p-2 border border-gray-300 rounded"
+                                                                        value={pricing.llmPackages.GoodData.Small}
+                                                                        onChange={(e) => updateLLMPricing('GoodData', 'Small', e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <label className="w-16 text-sm">Medium:</label>
+                                                                    <input 
+                                                                        type="number"
+                                                                        className="flex-1 p-2 border border-gray-300 rounded"
+                                                                        value={pricing.llmPackages.GoodData.Medium}
+                                                                        onChange={(e) => updateLLMPricing('GoodData', 'Medium', e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex gap-2">
+                                                                    <label className="w-16 text-sm">Large:</label>
+                                                                    <input 
+                                                                        type="number"
+                                                                        className="flex-1 p-2 border border-gray-300 rounded"
+                                                                        value={pricing.llmPackages.GoodData.Large}
+                                                                        onChange={(e) => updateLLMPricing('GoodData', 'Large', e.target.value)}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">SAML/OIDC</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.samlOidc}
-                                                    onChange={(e) => updatePricing('samlOidc', e.target.value)}
-                                                />
+                                        )}
+
+                                        {/* Only show add-on pricing for selected add-ons */}
+                                        {(formData.additionalEnvironments || formData.samlOidc || formData.dataCenterRegions || 
+                                          formData.usageAnalytics || formData.auditLog || formData.hipaaCompliance) && (
+                                            <div className="border-t pt-6">
+                                                <h3 className="text-lg font-semibold mb-4">Add-ons</h3>
+                                                <div className="grid md:grid-cols-3 gap-4">
+                                                    {formData.additionalEnvironments && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">Additional Environments</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.additionalEnvironments}
+                                                                onChange={(e) => updatePricing('additionalEnvironments', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {formData.samlOidc && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">SAML/OIDC</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.samlOidc}
+                                                                onChange={(e) => updatePricing('samlOidc', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {formData.dataCenterRegions && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">Data Center Regions</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.dataCenterRegions}
+                                                                onChange={(e) => updatePricing('dataCenterRegions', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {formData.usageAnalytics && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">Usage Analytics</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.usageAnalytics}
+                                                                onChange={(e) => updatePricing('usageAnalytics', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {formData.auditLog && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">Audit Log</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.auditLog}
+                                                                onChange={(e) => updatePricing('auditLog', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {formData.hipaaCompliance && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">HIPAA Compliance</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                value={pricing.hipaaCompliance}
+                                                                onChange={(e) => updatePricing('hipaaCompliance', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Data Center Regions</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.dataCenterRegions}
-                                                    onChange={(e) => updatePricing('dataCenterRegions', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Usage Analytics</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.usageAnalytics}
-                                                    onChange={(e) => updatePricing('usageAnalytics', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Audit Log</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.auditLog}
-                                                    onChange={(e) => updatePricing('auditLog', e.target.value)}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">HIPAA Compliance</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                    value={pricing.hipaaCompliance}
-                                                    onChange={(e) => updatePricing('hipaaCompliance', e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
