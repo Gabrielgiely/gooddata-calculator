@@ -102,7 +102,102 @@
                     const quoteData = this.quotes.get(code);
                     return { success: true, data: quoteData.data, code };
                 }
+                
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?code=eq.${code}`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        if (quotes && quotes.length > 0) {
+                            return { success: true, data: quotes[0].data, code };
+                        }
+                    } catch (error) {
+                        return { success: false, error: error.message, code };
+                    }
+                }
                 return { success: false, error: 'Quote not found', code };
+            }
+
+            async getRecentQuotes(limit = 10) {
+                const fallbackQuotes = Array.from(this.quotes.entries()).map(([code, quote]) => ({
+                    code,
+                    data: quote.data,
+                    created_at: quote.timestamp
+                })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, limit);
+
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?order=created_at.desc&limit=${limit}`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        return { success: true, quotes: quotes || [] };
+                    } catch (error) {
+                        return { success: false, error: error.message, quotes: fallbackQuotes };
+                    }
+                }
+                return { success: true, quotes: fallbackQuotes };
+            }
+
+            async searchQuotes(searchTerm) {
+                const fallbackQuotes = Array.from(this.quotes.entries())
+                    .filter(([code, quote]) => 
+                        code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (quote.data.prospectName && quote.data.prospectName.toLowerCase().includes(searchTerm.toLowerCase()))
+                    )
+                    .map(([code, quote]) => ({
+                        code,
+                        data: quote.data,
+                        created_at: quote.timestamp
+                    }))
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?or=(code.ilike.*${searchTerm}*,data->>prospectName.ilike.*${searchTerm}*)&order=created_at.desc`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        return { success: true, quotes: quotes || [] };
+                    } catch (error) {
+                        return { success: false, error: error.message, quotes: fallbackQuotes };
+                    }
+                }
+                return { success: true, quotes: fallbackQuotes };
+            }
+
+            async getAllQuotes() {
+                const fallbackQuotes = Array.from(this.quotes.entries()).map(([code, quote]) => ({
+                    code,
+                    data: quote.data,
+                    created_at: quote.timestamp
+                })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?order=created_at.desc`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        return { success: true, quotes: quotes || [] };
+                    } catch (error) {
+                        return { success: false, error: error.message, quotes: fallbackQuotes };
+                    }
+                }
+                return { success: true, quotes: fallbackQuotes };
             }
         }
 
@@ -115,6 +210,10 @@
             const [editMode, setEditMode] = useState(false);
             const [showConfirmModal, setShowConfirmModal] = useState(false);
             const [showSuccessModal, setShowSuccessModal] = useState(false);
+            const [showRecentQuotes, setShowRecentQuotes] = useState(false);
+            const [recentQuotes, setRecentQuotes] = useState([]);
+            const [quotesLoading, setQuotesLoading] = useState(false);
+            const [searchTerm, setSearchTerm] = useState('');
             const [savedQuoteCode, setSavedQuoteCode] = useState('');
             
             const [formData, setFormData] = useState({
@@ -291,6 +390,97 @@
                 }
             };
 
+            const loadRecentQuotes = async () => {
+                setQuotesLoading(true);
+                try {
+                    const result = await cloudStorage.getRecentQuotes(20);
+                    if (result.success) {
+                        setRecentQuotes(result.quotes);
+                    } else {
+                        setMessage('❌ Failed to load recent quotes');
+                        setTimeout(() => setMessage(''), 3000);
+                    }
+                } catch (error) {
+                    setMessage('❌ Error loading quotes');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setQuotesLoading(false);
+            };
+
+            const searchQuotes = async (term) => {
+                if (!term.trim()) {
+                    loadRecentQuotes();
+                    return;
+                }
+                setQuotesLoading(true);
+                try {
+                    const result = await cloudStorage.searchQuotes(term);
+                    if (result.success) {
+                        setRecentQuotes(result.quotes);
+                    } else {
+                        setMessage('❌ Search failed');
+                        setTimeout(() => setMessage(''), 3000);
+                    }
+                } catch (error) {
+                    setMessage('❌ Search error');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setQuotesLoading(false);
+            };
+
+            const loadQuoteFromRecent = async (code) => {
+                setQuotesLoading(true);
+                try {
+                    const result = await cloudStorage.load(code);
+                    if (result.success) {
+                        setFormData(result.data);
+                        setShowRecentQuotes(false);
+                        setMessage(`✅ Quote loaded: ${code}`);
+                        setTimeout(() => setMessage(''), 3000);
+                    } else {
+                        setMessage(`❌ Failed to load quote: ${code}`);
+                        setTimeout(() => setMessage(''), 3000);
+                    }
+                } catch (error) {
+                    setMessage('❌ Error loading quote');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setQuotesLoading(false);
+            };
+
+            const calculateQuoteTotal = (quoteData) => {
+                const bi = parseInt(quoteData.biWorkspaces) || 0;
+                const ai = parseInt(quoteData.aiWorkspaces) || 0;
+                
+                let baseAmount = 0;
+                if (quoteData.license === 'Professional') {
+                    baseAmount = pricing.professionalLicense;
+                } else if (quoteData.license === 'Enterprise') {
+                    baseAmount = pricing.enterpriseLicense;
+                } else {
+                    baseAmount = pricing.platformFee;
+                }
+                
+                let total = baseAmount + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
+                
+                if (quoteData.llmProvider && quoteData.package) {
+                    const monthlyCost = pricing.llmPackages[quoteData.llmProvider]?.[quoteData.package] || 0;
+                    total += monthlyCost * 12;
+                }
+                
+                if (quoteData.professionalServices === 'Advisory') total += pricing.advisory;
+                if (quoteData.professionalServices === 'Analytics') total += pricing.analytics;
+                if (quoteData.professionalServices === 'End-to-end') total += pricing.endToEnd;
+                if (quoteData.additionalEnvironments) total += pricing.additionalEnvironments;
+                if (quoteData.samlOidc) total += pricing.samlOidc;
+                if (quoteData.dataCenterRegions) total += pricing.dataCenterRegions;
+                if (quoteData.usageAnalytics) total += pricing.usageAnalytics;
+                if (quoteData.auditLog) total += pricing.auditLog;
+                if (quoteData.hipaaCompliance) total += pricing.hipaaCompliance;
+                
+                return total;
+            };
+
             const loadQuote = async () => {
                 if (!templateCode.trim()) {
                     setMessage('❌ Please enter a quote code');
@@ -369,7 +559,7 @@
                                     Quote Management
                                 </h2>
                                 
-                                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                <div className="grid md:grid-cols-3 gap-4 mb-4">
                                     <div className="bg-white/10 rounded-lg p-4">
                                         <h3 className="font-semibold mb-3">📥 Load Quote</h3>
                                         <div className="flex gap-2 mb-2">
@@ -403,6 +593,19 @@
                                         {formData.prospectName && (
                                             <p className="text-white/80 text-sm">Code: <strong>{generateCode()}</strong></p>
                                         )}
+                                    </div>
+                                    
+                                    <div className="bg-white/10 rounded-lg p-4">
+                                        <h3 className="font-semibold mb-3">📋 Recent Quotes</h3>
+                                        <button
+                                            onClick={() => {
+                                                setShowRecentQuotes(true);
+                                                loadRecentQuotes();
+                                            }}
+                                            className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50"
+                                        >
+                                            📋 VIEW RECENT
+                                        </button>
                                     </div>
                                 </div>
 
@@ -1074,6 +1277,114 @@
                                 )}
                             </div>
                         </div>
+
+                        {/* Recent Quotes Modal */}
+                        {showRecentQuotes && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden shadow-2xl">
+                                    <div className="p-6 border-b border-gray-200">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                                📋 Recent Quotes
+                                            </h3>
+                                            <button
+                                                onClick={() => setShowRecentQuotes(false)}
+                                                className="text-gray-400 hover:text-gray-600"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Search by company name or quote code..."
+                                                value={searchTerm}
+                                                onChange={(e) => {
+                                                    setSearchTerm(e.target.value);
+                                                    searchQuotes(e.target.value);
+                                                }}
+                                                className="flex-1 p-2 border border-gray-300 rounded-lg"
+                                            />
+                                            <button
+                                                onClick={loadRecentQuotes}
+                                                disabled={quotesLoading}
+                                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                                            >
+                                                {quotesLoading ? '🔄' : '🔄 Refresh'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="overflow-y-auto max-h-96 p-6">
+                                        {quotesLoading ? (
+                                            <div className="text-center py-8">
+                                                <div className="text-gray-500">🔄 Loading quotes...</div>
+                                            </div>
+                                        ) : recentQuotes.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <div className="text-gray-500">No quotes found</div>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {recentQuotes.map((quote, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                                                        onClick={() => loadQuoteFromRecent(quote.code)}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-3 mb-2">
+                                                                    <span className="font-mono font-bold text-purple-600">
+                                                                        {quote.code}
+                                                                    </span>
+                                                                    <span className="font-semibold text-gray-900">
+                                                                        {quote.data.prospectName || 'Unknown Company'}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-sm text-gray-600 space-y-1">
+                                                                    <div className="flex gap-4">
+                                                                        {quote.data.license && (
+                                                                            <span>License: {quote.data.license}</span>
+                                                                        )}
+                                                                        {quote.data.biWorkspaces && (
+                                                                            <span>BI: {quote.data.biWorkspaces}</span>
+                                                                        )}
+                                                                        {quote.data.aiWorkspaces && (
+                                                                            <span>AI: {quote.data.aiWorkspaces}</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <div>
+                                                                        Created: {new Date(quote.created_at).toLocaleDateString()} at {new Date(quote.created_at).toLocaleTimeString()}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-lg font-bold text-green-600">
+                                                                    ${calculateQuoteTotal(quote.data).toLocaleString()}
+                                                                </div>
+                                                                <div className="text-sm text-gray-500">
+                                                                    Annual Value
+                                                                </div>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        loadQuoteFromRecent(quote.code);
+                                                                    }}
+                                                                    className="mt-2 px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200"
+                                                                >
+                                                                    Load Quote
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Confirmation Modal */}
                         {showConfirmModal && (
