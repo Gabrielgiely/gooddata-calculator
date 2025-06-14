@@ -1,4 +1,4 @@
-const handleInputChange = (field, value) => {<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,7 +18,6 @@ const handleInputChange = (field, value) => {<!DOCTYPE html>
     <script type="text/babel">
         const { useState } = React;
 
-        // Simple icons
         const Calculator = () => (
             <svg className="lucide" viewBox="0 0 24 24">
                 <rect width="16" height="20" x="4" y="2" rx="2"/>
@@ -61,7 +60,13 @@ const handleInputChange = (field, value) => {<!DOCTYPE html>
             </svg>
         );
 
-        // Supabase Storage
+        const Settings = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        );
+
         class SupabaseStorage {
             constructor() {
                 this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
@@ -166,6 +171,8 @@ const handleInputChange = (field, value) => {<!DOCTYPE html>
                     }
                 }));
             };
+
+            const handleInputChange = (field, value) => {
                 setFormData(prev => {
                     const newData = { ...prev, [field]: value };
                     if (field === 'totalWorkspaces') {
@@ -282,7 +289,7 @@ const handleInputChange = (field, value) => {<!DOCTYPE html>
                                 <div className="flex-1">
                                     <h1 className="text-2xl font-bold mb-2">🌍 GOODDATA CALCULATOR</h1>
                                     <div className="text-sm bg-white/20 rounded-lg p-3">
-                                        Professional pricing calculator with detailed breakdown and quote sharing!
+                                        Professional pricing calculator with editable pricing and detailed breakdown!
                                     </div>
                                 </div>
                             </div>
@@ -565,16 +572,16 @@ const handleInputChange = (field, value) => {<!DOCTYPE html>
                                                 <option value="">Select Package</option>
                                                 {formData.llmProvider === 'Customer' && (
                                                     <>
-                                                        <option value="Small">Small - $100/month</option>
-                                                        <option value="Medium">Medium - $430/month</option>
-                                                        <option value="Large">Large - $750/month</option>
+                                                        <option value="Small">Small - ${pricing.llmPackages.Customer.Small}/month</option>
+                                                        <option value="Medium">Medium - ${pricing.llmPackages.Customer.Medium}/month</option>
+                                                        <option value="Large">Large - ${pricing.llmPackages.Customer.Large}/month</option>
                                                     </>
                                                 )}
                                                 {formData.llmProvider === 'GoodData' && (
                                                     <>
-                                                        <option value="Small">Small - $200/month</option>
-                                                        <option value="Medium">Medium - $750/month</option>
-                                                        <option value="Large">Large - $900/month</option>
+                                                        <option value="Small">Small - ${pricing.llmPackages.GoodData.Small}/month</option>
+                                                        <option value="Medium">Medium - ${pricing.llmPackages.GoodData.Medium}/month</option>
+                                                        <option value="Large">Large - ${pricing.llmPackages.GoodData.Large}/month</option>
                                                     </>
                                                 )}
                                             </select>
@@ -597,206 +604,411 @@ const handleInputChange = (field, value) => {<!DOCTYPE html>
                                         onChange={(e) => handleInputChange('professionalServices', e.target.value)}
                                     >
                                         <option value="">Select Service</option>
-                                        <option value="Advisory">Advisory Package - 80 hours - $10,000</option>
-                                        <option value="Analytics">Analytics Package - 300 hours - $37,500</option>
-                                        <option value="End-to-end">End-to-end Implementation - 800 hours - $100,000</option>
+                                        <option value="Advisory">Advisory Package - 80 hours - ${pricing.advisory.toLocaleString()}</option>
+                                        <option value="Analytics">Analytics Package - 300 hours - ${pricing.analytics.toLocaleString()}</option>
+                                        <option value="End-to-end">End-to-end Package - 800 hours - ${pricing.endToEnd.toLocaleString()}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                <h2 className="text-xl font-semibold text-gray-800 mb-6">Premium Enterprise Features</h2>
+                                <h2 className="text-xl font-semibold text-gray-800 mb-6">Add-ons</h2>
                                 
                                 <div className="grid md:grid-cols-2 gap-4">
-                                    {[
-                                        { key: 'additionalEnvironments', label: 'Additional Environments', desc: 'Dev/Test/Staging environments', price: pricing.additionalEnvironments },
-                                        { key: 'samlOidc', label: 'SAML & Multiple OIDC', desc: 'Enterprise SSO integration', price: pricing.samlOidc },
-                                        { key: 'dataCenterRegions', label: 'Data Center Regions', desc: 'Multi-region deployment', price: pricing.dataCenterRegions },
-                                        { key: 'usageAnalytics', label: 'Usage Analytics', desc: 'Advanced usage reporting', price: pricing.usageAnalytics },
-                                        { key: 'auditLog', label: 'Audit Log', desc: 'Comprehensive audit trails', price: pricing.auditLog },
-                                        { key: 'hipaaCompliance', label: 'HIPAA Compliance', desc: 'Healthcare data protection', price: pricing.hipaaCompliance }
-                                    ].map(addon => (
-                                        <label key={addon.key} className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <div className="space-y-4">
+                                        <label className="flex items-center">
                                             <input 
                                                 type="checkbox"
-                                                checked={formData[addon.key]}
-                                                onChange={(e) => handleInputChange(addon.key, e.target.checked)}
-                                                className="w-5 h-5 text-purple-600 border-gray-300 rounded mt-0.5"
+                                                checked={formData.additionalEnvironments}
+                                                onChange={(e) => handleInputChange('additionalEnvironments', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
                                             />
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-gray-800 font-medium">{addon.label}</span>
-                                                    <span className="text-purple-600 font-semibold">${addon.price.toLocaleString()}</span>
-                                                </div>
-                                                <p className="text-sm text-gray-600">{addon.desc}</p>
-                                            </div>
+                                            <span className="ml-2 text-gray-700">Additional Environments - ${pricing.additionalEnvironments.toLocaleString()}</span>
                                         </label>
-                                    ))}
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.samlOidc}
+                                                onChange={(e) => handleInputChange('samlOidc', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">SAML/OIDC - ${pricing.samlOidc.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.dataCenterRegions}
+                                                onChange={(e) => handleInputChange('dataCenterRegions', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Data Center Regions - ${pricing.dataCenterRegions.toLocaleString()}</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.usageAnalytics}
+                                                onChange={(e) => handleInputChange('usageAnalytics', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Usage Analytics - ${pricing.usageAnalytics.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.auditLog}
+                                                onChange={(e) => handleInputChange('auditLog', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Audit Log - ${pricing.auditLog.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.hipaaCompliance}
+                                                onChange={(e) => handleInputChange('hipaaCompliance', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">HIPAA Compliance - ${pricing.hipaaCompliance.toLocaleString()}</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Total Display with Detailed Breakdown */}
-                            <div className="bg-gradient-to-r from-purple-900 to-pink-500 text-white rounded-xl p-8">
-                                <div className="text-center mb-6">
-                                    <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
-                                        <DollarSign className="w-6 h-6" />
-                                        Total Annual Contract Value
-                                    </h2>
-                                    <div className="text-5xl font-bold mb-2">
-                                        ${calculateTotal().toLocaleString()}
+                            {/* Pricing Editor */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <Settings className="w-6 h-6 text-gray-600" />
+                                        <h2 className="text-xl font-semibold text-gray-800">Pricing Editor</h2>
                                     </div>
-                                    <div className="text-lg opacity-90">
-                                        Monthly: ${(calculateTotal()/12).toLocaleString()}
-                                    </div>
+                                    <button
+                                        onClick={() => setEditMode(!editMode)}
+                                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                                    >
+                                        {editMode ? 'Close Editor' : 'Edit Pricing'}
+                                    </button>
                                 </div>
+                                
+                                {editMode && (
+                                    <div className="space-y-6">
+                                        <div className="grid md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Platform Fee</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.platformFee}
+                                                    onChange={(e) => updatePricing('platformFee', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspace (monthly)</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.biWorkspacePrice}
+                                                    onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspace (monthly)</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.aiWorkspacePrice}
+                                                    onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
 
-                                {/* Detailed Pricing Breakdown */}
-                                <div className="bg-white/10 rounded-lg p-6 space-y-4">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-lg font-semibold">Pricing Breakdown</h3>
-                                        <button
-                                            onClick={() => setEditMode(!editMode)}
-                                            className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors"
-                                        >
-                                            {editMode ? '✅ Done Editing' : '✏️ Edit Pricing'}
-                                        </button>
+                                        <div className="grid md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Advisory Package</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.advisory}
+                                                    onChange={(e) => updatePricing('advisory', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Analytics Package</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.analytics}
+                                                    onChange={(e) => updatePricing('analytics', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">End-to-end Package</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.endToEnd}
+                                                    onChange={(e) => updatePricing('endToEnd', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t pt-6">
+                                            <h3 className="text-lg font-semibold mb-4">LLM Package Pricing (Monthly)</h3>
+                                            <div className="grid md:grid-cols-2 gap-6">
+                                                <div>
+                                                    <h4 className="font-medium mb-3">Customer Provider</h4>
+                                                    <div className="space-y-2">
+                                                        <div className="flex gap-2">
+                                                            <label className="w-16 text-sm">Small:</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="flex-1 p-2 border border-gray-300 rounded"
+                                                                value={pricing.llmPackages.Customer.Small}
+                                                                onChange={(e) => updateLLMPricing('Customer', 'Small', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <label className="w-16 text-sm">Medium:</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="flex-1 p-2 border border-gray-300 rounded"
+                                                                value={pricing.llmPackages.Customer.Medium}
+                                                                onChange={(e) => updateLLMPricing('Customer', 'Medium', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <label className="w-16 text-sm">Large:</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="flex-1 p-2 border border-gray-300 rounded"
+                                                                value={pricing.llmPackages.Customer.Large}
+                                                                onChange={(e) => updateLLMPricing('Customer', 'Large', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-medium mb-3">GoodData Provider</h4>
+                                                    <div className="space-y-2">
+                                                        <div className="flex gap-2">
+                                                            <label className="w-16 text-sm">Small:</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="flex-1 p-2 border border-gray-300 rounded"
+                                                                value={pricing.llmPackages.GoodData.Small}
+                                                                onChange={(e) => updateLLMPricing('GoodData', 'Small', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <label className="w-16 text-sm">Medium:</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="flex-1 p-2 border border-gray-300 rounded"
+                                                                value={pricing.llmPackages.GoodData.Medium}
+                                                                onChange={(e) => updateLLMPricing('GoodData', 'Medium', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <label className="w-16 text-sm">Large:</label>
+                                                            <input 
+                                                                type="number"
+                                                                className="flex-1 p-2 border border-gray-300 rounded"
+                                                                value={pricing.llmPackages.GoodData.Large}
+                                                                onChange={(e) => updateLLMPricing('GoodData', 'Large', e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid md:grid-cols-3 gap-4 border-t pt-6">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Environments</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.additionalEnvironments}
+                                                    onChange={(e) => updatePricing('additionalEnvironments', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">SAML/OIDC</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.samlOidc}
+                                                    onChange={(e) => updatePricing('samlOidc', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Data Center Regions</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.dataCenterRegions}
+                                                    onChange={(e) => updatePricing('dataCenterRegions', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Usage Analytics</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.usageAnalytics}
+                                                    onChange={(e) => updatePricing('usageAnalytics', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Audit Log</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.auditLog}
+                                                    onChange={(e) => updatePricing('auditLog', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">HIPAA Compliance</label>
+                                                <input 
+                                                    type="number"
+                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                    value={pricing.hipaaCompliance}
+                                                    onChange={(e) => updatePricing('hipaaCompliance', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Pricing Summary */}
+                            <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <DollarSign className="w-8 h-8" />
+                                    <h2 className="text-2xl font-bold">Pricing Summary</h2>
+                                </div>
+                                
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="bg-white/10 rounded-lg p-4">
+                                        <h3 className="text-lg font-semibold mb-4">Annual Breakdown</h3>
+                                        <div className="space-y-2 text-sm">
+                                            <div className="flex justify-between">
+                                                <span>Platform Fee:</span>
+                                                <span>${pricing.platformFee.toLocaleString()}</span>
+                                            </div>
+                                            {parseInt(formData.biWorkspaces) > 0 && (
+                                                <div className="flex justify-between">
+                                                    <span>BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo):</span>
+                                                    <span>${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {parseInt(formData.aiWorkspaces) > 0 && (
+                                                <div className="flex justify-between">
+                                                    <span>AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo):</span>
+                                                    <span>${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.llmProvider && formData.package && (
+                                                <div className="flex justify-between">
+                                                    <span>LLM Package ({formData.llmProvider} {formData.package}):</span>
+                                                    <span>${(pricing.llmPackages[formData.llmProvider]?.[formData.package] * 12 || 0).toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {getProfessionalServicesCost() > 0 && (
+                                                <div className="flex justify-between">
+                                                    <span>Professional Services:</span>
+                                                    <span>${getProfessionalServicesCost().toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.additionalEnvironments && (
+                                                <div className="flex justify-between">
+                                                    <span>Additional Environments:</span>
+                                                    <span>${pricing.additionalEnvironments.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.samlOidc && (
+                                                <div className="flex justify-between">
+                                                    <span>SAML/OIDC:</span>
+                                                    <span>${pricing.samlOidc.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.dataCenterRegions && (
+                                                <div className="flex justify-between">
+                                                    <span>Data Center Regions:</span>
+                                                    <span>${pricing.dataCenterRegions.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.usageAnalytics && (
+                                                <div className="flex justify-between">
+                                                    <span>Usage Analytics:</span>
+                                                    <span>${pricing.usageAnalytics.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.auditLog && (
+                                                <div className="flex justify-between">
+                                                    <span>Audit Log:</span>
+                                                    <span>${pricing.auditLog.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.hipaaCompliance && (
+                                                <div className="flex justify-between">
+                                                    <span>HIPAA Compliance:</span>
+                                                    <span>${pricing.hipaaCompliance.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                     
-                                    {/* Platform Base Fee - Always shown */}
-                                    <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                        <span className="text-white/90">Platform Base Fee</span>
-                                        {editMode ? (
-                                            <input
-                                                type="number"
-                                                value={pricing.platformFee}
-                                                onChange={(e) => updatePricing('platformFee', e.target.value)}
-                                                className="w-24 p-1 text-gray-900 rounded text-right"
-                                            />
-                                        ) : (
-                                            <span className="font-semibold">${pricing.platformFee.toLocaleString()}</span>
-                                        )}
-                                    </div>
-
-                                    {/* BI Workspaces - Only show if > 0 */}
-                                    {formData.biWorkspaces && parseInt(formData.biWorkspaces) > 0 && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">
-                                                BI Workspaces ({formData.biWorkspaces} × ${editMode ? '' : pricing.biWorkspacePrice}/mo × 12)
-                                                {editMode && (
-                                                    <input
-                                                        type="number"
-                                                        value={pricing.biWorkspacePrice}
-                                                        onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
-                                                        className="w-16 p-1 ml-2 text-gray-900 rounded text-center"
-                                                    />
-                                                )}
-                                            </span>
-                                            <span className="font-semibold">
-                                                ${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {/* AI Workspaces - Only show if > 0 */}
-                                    {formData.aiWorkspaces && parseInt(formData.aiWorkspaces) > 0 && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">
-                                                AI Workspaces ({formData.aiWorkspaces} × ${editMode ? '' : pricing.aiWorkspacePrice}/mo × 12)
-                                                {editMode && (
-                                                    <input
-                                                        type="number"
-                                                        value={pricing.aiWorkspacePrice}
-                                                        onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
-                                                        className="w-16 p-1 ml-2 text-gray-900 rounded text-center"
-                                                    />
-                                                )}
-                                            </span>
-                                            <span className="font-semibold">
-                                                ${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {/* LLM Package - Only show if selected */}
-                                    {formData.llmProvider && formData.package && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">
-                                                {formData.llmProvider} LLM {formData.package} (${editMode ? '' : pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}/mo × 12)
-                                                {editMode && (
-                                                    <input
-                                                        type="number"
-                                                        value={pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}
-                                                        onChange={(e) => updateLLMPricing(formData.llmProvider, formData.package, e.target.value)}
-                                                        className="w-16 p-1 ml-2 text-gray-900 rounded text-center"
-                                                    />
-                                                )}
-                                            </span>
-                                            <span className="font-semibold">
-                                                ${((pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0) * 12).toLocaleString()}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {/* Professional Services - Only show if selected */}
-                                    {formData.professionalServices && (
-                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">
-                                                Professional Services - {formData.professionalServices}
-                                            </span>
-                                            {editMode ? (
-                                                <input
-                                                    type="number"
-                                                    value={getProfessionalServicesCost()}
-                                                    onChange={(e) => {
-                                                        const field = formData.professionalServices === 'Advisory' ? 'advisory' :
-                                                                     formData.professionalServices === 'Analytics' ? 'analytics' : 'endToEnd';
-                                                        updatePricing(field, e.target.value);
-                                                    }}
-                                                    className="w-24 p-1 text-gray-900 rounded text-right"
-                                                />
-                                            ) : (
-                                                <span className="font-semibold">
-                                                    ${getProfessionalServicesCost().toLocaleString()}
-                                                </span>
+                                    <div className="bg-white/10 rounded-lg p-4">
+                                        <h3 className="text-lg font-semibold mb-4">Customer Information</h3>
+                                        <div className="space-y-2 text-sm">
+                                            {formData.prospectName && (
+                                                <div><strong>Company:</strong> {formData.prospectName}</div>
+                                            )}
+                                            {formData.clientWebsite && (
+                                                <div><strong>Website:</strong> {formData.clientWebsite}</div>
+                                            )}
+                                            {formData.annualRevenue && (
+                                                <div><strong>Revenue:</strong> {formData.annualRevenue}</div>
+                                            )}
+                                            {formData.budget && (
+                                                <div><strong>Budget:</strong> {formData.budget}</div>
+                                            )}
+                                            {formData.usageScope && (
+                                                <div><strong>Scope:</strong> {formData.usageScope}</div>
+                                            )}
+                                            {formData.monetization && (
+                                                <div><strong>Monetization:</strong> {formData.monetization}</div>
+                                            )}
+                                            {formData.growthOpportunity && (
+                                                <div><strong>Growth:</strong> {formData.growthOpportunity}</div>
                                             )}
                                         </div>
-                                    )}
-
-                                    {/* Premium Add-ons - Only show selected ones */}
-                                    {[
-                                        { key: 'additionalEnvironments', label: 'Additional Environments', field: 'additionalEnvironments' },
-                                        { key: 'samlOidc', label: 'SAML & Multiple OIDC', field: 'samlOidc' },
-                                        { key: 'dataCenterRegions', label: 'Data Center Regions', field: 'dataCenterRegions' },
-                                        { key: 'usageAnalytics', label: 'Usage Analytics', field: 'usageAnalytics' },
-                                        { key: 'auditLog', label: 'Audit Log', field: 'auditLog' },
-                                        { key: 'hipaaCompliance', label: 'HIPAA Compliance', field: 'hipaaCompliance' }
-                                    ].filter(addon => formData[addon.key]).map(addon => (
-                                        <div key={addon.key} className="flex justify-between items-center py-2 border-b border-white/20">
-                                            <span className="text-white/90">{addon.label}</span>
-                                            {editMode ? (
-                                                <input
-                                                    type="number"
-                                                    value={pricing[addon.field]}
-                                                    onChange={(e) => updatePricing(addon.field, e.target.value)}
-                                                    className="w-20 p-1 text-gray-900 rounded text-right"
-                                                />
-                                            ) : (
-                                                <span className="font-semibold">${pricing[addon.field].toLocaleString()}</span>
-                                            )}
+                                        
+                                        <div className="mt-6 pt-4 border-t border-white/20">
+                                            <div className="text-2xl font-bold">
+                                                Total: ${calculateTotal().toLocaleString()}
+                                            </div>
+                                            <div className="text-sm opacity-90">
+                                                Annual Contract Value
+                                            </div>
                                         </div>
-                                    ))}
-
-                                    {/* Total Line */}
-                                    <div className="flex justify-between items-center pt-4 text-lg font-bold border-t-2 border-white/30">
-                                        <span>TOTAL ANNUAL</span>
-                                        <span>${calculateTotal().toLocaleString()}</span>
                                     </div>
                                 </div>
-
-                                <div className="mt-4 text-sm bg-white/20 rounded-lg p-3">
-                                    <strong>✅ Working Calculator!</strong><br/>
-                                    Complete pricing breakdown with Supabase cloud storage and cross-device quote sharing!
-                                </div>
+                                
+                                {formData.objectives && (
+                                    <div className="mt-6 bg-white/10 rounded-lg p-4">
+                                        <h4 className="font-semibold mb-2">Customer Objectives:</h4>
+                                        <p className="text-sm opacity-90">{formData.objectives}</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
