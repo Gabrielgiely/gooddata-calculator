@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodData Calculator - GitHub + Supabase Edition</title>
+    <title>GoodData Calculator</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -18,217 +18,43 @@
     <script type="text/babel">
         const { useState } = React;
 
-        // Icons
-        const Calculator = () => <svg className="lucide" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="m16 10-4 4-4-4"/></svg>;
-        const Database = () => <svg className="lucide" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="m3 5v14c0 3 4 3 9 3s9 0 9-3V5"/><path d="m3 12c0 3 4 3 9 3s9 0 9-3"/></svg>;
-        const Users = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m22 21-3-3"/><path d="m16 8 2-2"/></svg>;
-        const FileText = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>;
-        const Settings = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>;
-        const Building = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12h4"/><path d="M6 8h4"/><path d="M6 16h4"/><path d="M14 12h4"/><path d="M14 16h4"/><path d="M14 8h4"/><path d="M6 22h12"/></svg>;
-        const DollarSign = () => <svg className="lucide" viewBox="0 0 24 24"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
-        const Globe = () => <svg className="lucide" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
-        const Github = () => <svg className="lucide" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>;
+        // Simple icons
+        const Calculator = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <rect width="16" height="20" x="4" y="2" rx="2"/>
+                <line x1="8" x2="16" y1="6" y2="6"/>
+            </svg>
+        );
 
-        // Supabase Storage
-        class SupabaseStorage {
-            constructor() {
-                this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
-                this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzYXh2cGN3bG14ZGJpZXRtanJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2NzQwOTYsImV4cCI6MjA2NTI1MDA5Nn0.SnjvZx-xVMwtPBe62xY66y6vi1CQq4F04AOy53oRPDE';
-                
-                this.quotes = new Map();
-                
-                this.isProduction = window.location.hostname !== 'claude.ai' && 
-                                   window.location.hostname !== 'localhost' &&
-                                   this.supabaseUrl !== 'YOUR_SUPABASE_URL_HERE';
-                
-                if (this.isProduction) {
-                    console.log('🌍 Production mode: Supabase enabled');
-                    console.log('🔗 URL:', this.supabaseUrl);
-                    console.log('🗄️ Database connection ready');
-                } else {
-                    console.log('🔧 Demo mode: Local storage only');
-                    console.log('🌐 Hostname:', window.location.hostname);
-                }
-            }
+        const Database = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                <path d="m3 5v14c0 3 4 3 9 3s9 0 9-3V5"/>
+            </svg>
+        );
 
-            async callSupabase(method, endpoint, body = null) {
-                if (!this.isProduction) {
-                    throw new Error('Supabase not configured - using demo mode');
-                }
-                
-                const url = `${this.supabaseUrl}/rest/v1/${endpoint}`;
-                console.log(`🔄 ${method} ${endpoint}...`);
-                console.log(`🔗 Full URL: ${url}`);
-                if (body) console.log(`📤 Sending data:`, body);
-                
-                const options = {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': this.supabaseKey,
-                        'Authorization': `Bearer ${this.supabaseKey}`,
-                        'Prefer': 'return=minimal'
-                    }
-                };
-                
-                if (body) {
-                    options.body = JSON.stringify(body);
-                }
-                
-                const response = await fetch(url, options);
-                const responseText = await response.text();
-                
-                console.log(`📥 Response status: ${response.status}`);
-                console.log(`📥 Response text: ${responseText}`);
-                
-                if (response.ok) {
-                    console.log(`✅ Supabase ${method} successful!`);
-                    return method === 'GET' ? (responseText ? JSON.parse(responseText) : []) : { success: true };
-                } else {
-                    console.log(`❌ Supabase error ${response.status}:`, responseText);
-                    throw new Error(`HTTP ${response.status}: ${responseText}`);
-                }
-            }
+        const Users = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+            </svg>
+        );
 
-            async save(code, data) {
-                console.log(`📝 Saving quote "${code}"...`);
-                
-                const quoteData = {
-                    data: data,
-                    timestamp: new Date().toISOString(),
-                    code: code,
-                    version: '2.0'
-                };
-                
-                this.quotes.set(code, quoteData);
-                
-                if (this.isProduction) {
-                    try {
-                        console.log(`🔍 Checking if code "${code}" already exists...`);
-                        const existingData = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=id`);
-                        
-                        if (existingData && existingData.length > 0) {
-                            console.log(`📝 Updating existing record for code "${code}"`);
-                            await this.callSupabase('PATCH', `Quotes?code=eq.${code}`, {
-                                data: data,
-                                updated_at: new Date().toISOString()
-                            });
-                            console.log('✅ Updated existing record in Supabase');
-                        } else {
-                            console.log(`📝 Creating new record for code "${code}"`);
-                            await this.callSupabase('POST', 'Quotes', {
-                                code: code,
-                                data: data,
-                                created_at: new Date().toISOString(),
-                                updated_at: new Date().toISOString()
-                            });
-                            console.log('✅ Created new record in Supabase');
-                        }
-                        
-                        return {
-                            success: true,
-                            code: code,
-                            cloudSaved: true,
-                            source: 'supabase',
-                            timestamp: new Date().toISOString()
-                        };
-                    } catch (error) {
-                        console.log('❌ Cloud save failed:', error.message);
-                        return {
-                            success: false,
-                            code: code,
-                            cloudSaved: false,
-                            error: error.message,
-                            timestamp: new Date().toISOString()
-                        };
-                    }
-                } else {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    return {
-                        success: true,
-                        code: code,
-                        cloudSaved: false,
-                        source: 'demo',
-                        timestamp: new Date().toISOString()
-                    };
-                }
-            }
+        const Building = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                <path d="M6 12h4"/>
+            </svg>
+        );
 
-            async load(code) {
-                console.log(`📖 Loading quote "${code}"...`);
-                
-                if (this.isProduction) {
-                    try {
-                        console.log(`🔍 Searching for code "${code}" in Supabase...`);
-                        const data = await this.callSupabase('GET', `Quotes?code=eq.${code}&select=*`);
-                        
-                        console.log(`📊 Query result:`, data);
-                        console.log(`📊 Result length:`, data ? data.length : 'null');
-                        
-                        if (data && Array.isArray(data) && data.length > 0) {
-                            console.log('✅ Found record in Supabase cloud!');
-                            const record = data[0];
-                            console.log('📋 Record data:', record);
-                            
-                            const quoteData = {
-                                data: record.data,
-                                timestamp: record.updated_at || record.created_at,
-                                code: code,
-                                version: '2.0'
-                            };
-                            
-                            this.quotes.set(code, quoteData);
-                            
-                            return {
-                                success: true,
-                                data: record.data,
-                                code: code,
-                                source: 'supabase',
-                                timestamp: record.updated_at || record.created_at
-                            };
-                        } else {
-                            console.log('❌ No records found in Supabase for this code');
-                        }
-                    } catch (e) {
-                        console.log('❌ Supabase load failed:', e.message);
-                        console.log('❌ Full error:', e);
-                    }
-                }
-                
-                if (this.quotes.has(code)) {
-                    console.log('✅ Loaded from session memory');
-                    const quoteData = this.quotes.get(code);
-                    return {
-                        success: true,
-                        data: quoteData.data,
-                        code: code,
-                        source: this.isProduction ? 'memory' : 'demo',
-                        timestamp: quoteData.timestamp
-                    };
-                }
-
-                console.log(`❌ Quote "${code}" not found`);
-                return { 
-                    success: false, 
-                    error: 'Quote not found',
-                    code: code
-                };
-            }
-
-            getAllCodes() {
-                return Array.from(this.quotes.keys()).sort();
-            }
-        }
-
-        const cloudStorage = new SupabaseStorage();
+        const DollarSign = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <line x1="12" x2="12" y1="2" y2="22"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+        );
 
         function GoodDataCalculator() {
-            const [activeTab, setActiveTab] = useState('main');
-            const [templateCode, setTemplateCode] = useState('');
-            const [message, setMessage] = useState('');
-            const [loading, setLoading] = useState(false);
-            const [cloudStatus, setCloudStatus] = useState('');
-            
             const [formData, setFormData] = useState({
                 prospectName: '',
                 clientWebsite: '',
@@ -249,12 +75,10 @@
                 dataCenterRegions: false,
                 usageAnalytics: false,
                 auditLog: false,
-                hipaaCompliance: false,
-                aeComments: '',
-                financeComments: ''
+                hipaaCompliance: false
             });
 
-            const [pricing] = useState({
+            const pricing = {
                 platformFee: 36000,
                 biWorkspacePrice: 25,
                 aiWorkspacePrice: 10,
@@ -271,16 +95,10 @@
                     'Customer': { 'Small': 100, 'Medium': 430, 'Large': 750 },
                     'GoodData': { 'Small': 200, 'Medium': 750, 'Large': 900 }
                 }
-            });
+            };
 
             const handleInputChange = (field, value) => {
-                setFormData(prev => {
-                    const newData = { ...prev, [field]: value };
-                    if (field === 'totalWorkspaces') {
-                        newData.biWorkspaces = value;
-                    }
-                    return newData;
-                });
+                setFormData(prev => ({ ...prev, [field]: value }));
             };
 
             const calculateTotal = () => {
@@ -314,169 +132,26 @@
                 return 0;
             };
 
-            const generateCode = () => {
-                let companyPart = 'PROSPECT';
-                if (formData.prospectName) {
-                    companyPart = formData.prospectName
-                        .replace(/[^a-zA-Z0-9]/g, '')
-                        .toUpperCase()
-                        .substring(0, 8);
-                }
-                
-                const now = new Date();
-                const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 
-                                    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-                const month = monthNames[now.getMonth()];
-                const day = now.getDate().toString().padStart(2, '0');
-                
-                return `${companyPart}-${month}${day}`;
-            };
-
-            const saveQuote = async () => {
-                if (!formData.prospectName) {
-                    setMessage('❌ Please enter a prospect name before saving');
-                    setTimeout(() => setMessage(''), 3000);
-                    return;
-                }
-
-                const code = generateCode();
-                setLoading(true);
-                
-                if (cloudStorage.isProduction) {
-                    setMessage('🔄 Saving to Supabase cloud database...');
-                    setCloudStatus('Connecting to global cloud storage...');
-                } else {
-                    setMessage('🔄 Demo mode - saving locally...');
-                    setCloudStatus('Demo: Configure Supabase for production use...');
-                }
-                
-                try {
-                    const result = await cloudStorage.save(code, formData);
-                    
-                    if (result.success && result.cloudSaved) {
-                        setMessage(`✅ Quote saved to cloud: ${code} - Share this code globally! 🌍`);
-                        setCloudStatus('☁️ Successfully saved to Supabase database');
-                    } else if (result.success) {
-                        setMessage(`✅ Quote saved locally: ${code} - Available in current session 📋`);
-                        setCloudStatus('💾 Saved locally - Configure Supabase for cross-device sharing');
-                    } else {
-                        setMessage(`❌ Save failed: ${code} - ${result.error || 'Unknown error'}`);
-                        setCloudStatus(`❌ Error: ${result.error?.substring(0, 50) || 'Something went wrong'}`);
-                    }
-                    
-                    setTimeout(() => {
-                        setMessage('');
-                        setCloudStatus('');
-                    }, 6000);
-                    
-                } catch (error) {
-                    setMessage('❌ Unexpected error during save');
-                    setCloudStatus('❌ System error occurred');
-                    setTimeout(() => {
-                        setMessage('');
-                        setCloudStatus('');
-                    }, 4000);
-                }
-                
-                setLoading(false);
-            };
-
-            const loadQuote = async () => {
-                if (!templateCode.trim()) {
-                    setMessage('❌ Please enter a quote code');
-                    setTimeout(() => setMessage(''), 3000);
-                    return;
-                }
-
-                setLoading(true);
-                setMessage('🔄 Loading quote...');
-                setCloudStatus(cloudStorage.isProduction ? 'Searching cloud database...' : 'Demo mode - local search...');
-                
-                try {
-                    const result = await cloudStorage.load(templateCode.toUpperCase());
-                    
-                    if (result.success) {
-                        setFormData(result.data);
-                        const sourceIcon = result.source === 'supabase' ? '☁️' : 
-                                         result.source === 'memory' ? '💾' : '🔧';
-                        const sourceText = result.source === 'supabase' ? 'Supabase cloud' : 
-                                         result.source === 'memory' ? 'session memory' : 'demo mode';
-                        
-                        setMessage(`✅ Quote "${result.code}" loaded from ${sourceText}! ${sourceIcon}`);
-                        setCloudStatus(`${sourceIcon} Source: ${sourceText} | Last updated: ${new Date(result.timestamp).toLocaleString()}`);
-                        setTemplateCode('');
-                        
-                        setTimeout(() => {
-                            setMessage('');
-                            setCloudStatus('');
-                        }, 5000);
-                    } else {
-                        setMessage(`❌ Quote "${templateCode.toUpperCase()}" not found`);
-                        setCloudStatus('❌ Quote does not exist');
-                        setTimeout(() => {
-                            setMessage('');
-                            setCloudStatus('');
-                        }, 4000);
-                    }
-                } catch (error) {
-                    setMessage('❌ Load failed - please try again');
-                    setCloudStatus('❌ Error loading quote');
-                    setTimeout(() => {
-                        setMessage('');
-                        setCloudStatus('');
-                    }, 4000);
-                }
-                
-                setLoading(false);
-            };
-
             return (
                 <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 p-4">
                     <div className="max-w-6xl mx-auto">
                         
+                        {/* Header */}
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-500 rounded-xl shadow-xl text-white p-6 mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="bg-white/20 p-3 rounded-xl">
-                                    <Globe className="w-8 h-8" />
+                                    <Database className="w-8 h-8" />
                                 </div>
                                 <div className="flex-1">
-                                    <h1 className="text-2xl font-bold mb-2">🌍 SUPABASE CONFIGURED!</h1>
+                                    <h1 className="text-2xl font-bold mb-2">🌍 GOODDATA CALCULATOR</h1>
                                     <div className="text-sm bg-white/20 rounded-lg p-3">
-                                        <strong>Ready for global deployment!</strong> Your Supabase credentials are configured. Create the database table and deploy to GitHub for cross-device quote sharing!
-                                    </div>
-                                </div>
-                                <div className="text-right text-sm opacity-90">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Database className="w-4 h-4" />
-                                        Supabase Ready ✅
-                                    </div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Github className="w-4 h-4" />
-                                        GitHub Ready ✅
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Globe className="w-4 h-4" />
-                                        Global Sharing ✅
+                                        <strong>Professional pricing calculator</strong> with enhanced features and cloud storage capability!
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
-                            <h3 className="font-semibold text-gray-800 mb-2">🔍 Debug Information</h3>
-                            <div className="grid md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <strong>Mode:</strong> {cloudStorage.isProduction ? 'Production (Supabase)' : 'Demo (Local)'}
-                                </div>
-                                <div>
-                                    <strong>Hostname:</strong> {window.location.hostname}
-                                </div>
-                                <div>
-                                    <strong>Database:</strong> {cloudStorage.isProduction ? 'Supabase Active' : 'Demo Mode'}
-                                </div>
-                            </div>
-                        </div>
-
+                        {/* Main Calculator */}
                         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
                             <div className="flex items-center gap-4 mb-6">
                                 <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-900 to-pink-500 bg-clip-text text-transparent">
@@ -487,6 +162,7 @@
                                 </div>
                             </div>
                             
+                            {/* Basic Info */}
                             <div className="grid md:grid-cols-2 gap-4 mb-6">
                                 <input 
                                     type="text"
@@ -503,74 +179,8 @@
                                     onChange={(e) => handleInputChange('clientWebsite', e.target.value)}
                                 />
                             </div>
-                            
-                            <div className="bg-gradient-to-br from-green-600 to-emerald-500 rounded-xl text-white p-6 mb-6">
-                                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                                    <Database className="w-6 h-6" />
-                                    {cloudStorage.isProduction ? '🌍 Global Quote Management' : '🔧 Quote Management (Demo Mode)'}
-                                </h2>
-                                
-                                <div className="grid md:grid-cols-2 gap-4 mb-4">
-                                    <div className="bg-white/10 rounded-lg p-4">
-                                        <h3 className="font-semibold mb-3">📥 Load Quote</h3>
-                                        <div className="flex gap-2 mb-2">
-                                            <input 
-                                                type="text"
-                                                placeholder="Enter code (e.g., MICROSOFT-JUN13)"
-                                                value={templateCode}
-                                                onChange={(e) => setTemplateCode(e.target.value)}
-                                                className="flex-1 p-2 text-gray-900 rounded focus:ring-2 focus:ring-white"
-                                                disabled={loading}
-                                            />
-                                            <button
-                                                onClick={loadQuote}
-                                                disabled={loading}
-                                                className="px-4 py-2 bg-white text-green-600 font-semibold rounded hover:bg-gray-50 transition-colors disabled:opacity-50"
-                                            >
-                                                {loading ? '🔄' : '📥 LOAD'}
-                                            </button>
-                                        </div>
-                                        <div className="text-xs text-white/70">
-                                            <strong>Available:</strong> {cloudStorage.getAllCodes().slice(0, 3).join(', ')}{cloudStorage.getAllCodes().length > 3 ? '...' : ''}
-                                            {cloudStorage.getAllCodes().length === 0 && 'None saved yet'}
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="bg-white/10 rounded-lg p-4">
-                                        <h3 className="font-semibold mb-3">{cloudStorage.isProduction ? '☁️ Save to Cloud' : '💾 Save Quote'}</h3>
-                                        <button
-                                            onClick={saveQuote}
-                                            disabled={loading || !formData.prospectName}
-                                            className="w-full bg-white text-green-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 transition-colors disabled:opacity-50 mb-2"
-                                        >
-                                            {loading ? '🔄 Saving...' : cloudStorage.isProduction ? '☁️ SAVE TO CLOUD' : '💾 SAVE DEMO'}
-                                        </button>
-                                        {!formData.prospectName && (
-                                            <p className="text-white/80 text-sm">⚠️ Enter prospect name to enable saving</p>
-                                        )}
-                                        {formData.prospectName && (
-                                            <p className="text-white/80 text-sm">✅ Ready to save as: <strong>{generateCode()}</strong></p>
-                                        )}
-                                    </div>
-                                </div>
 
-                                {(message || cloudStatus) && (
-                                    <div className="space-y-2">
-                                        {message && (
-                                            <div className="bg-white/20 rounded-lg p-3 border-l-4 border-white">
-                                                <p className="text-white font-medium">{message}</p>
-                                            </div>
-                                        )}
-                                        {cloudStatus && (
-                                            <div className="bg-white/10 rounded-lg p-2">
-                                                <p className="text-white/90 text-sm">{cloudStatus}</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Customer Profile Section */}
+                            {/* Customer Profile */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <Building className="w-6 h-6 text-purple-900" />
@@ -709,6 +319,7 @@
                             </div>
 
                             {/* Workspace Configuration */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <Database className="w-6 h-6 text-pink-500" />
                                     <h2 className="text-xl font-semibold text-gray-800">Workspace Configuration</h2>
@@ -790,6 +401,7 @@
                                 </div>
                             </div>
 
+                            {/* Professional Services */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <Users className="w-6 h-6 text-blue-600" />
@@ -811,6 +423,7 @@
                                 </div>
                             </div>
 
+                            {/* Premium Features */}
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <h2 className="text-xl font-semibold text-gray-800 mb-6">Premium Enterprise Features</h2>
                                 
@@ -872,6 +485,7 @@
                                 </div>
                             </div>
 
+                            {/* Total Display with Breakdown */}
                             <div className="bg-gradient-to-r from-purple-900 to-pink-500 text-white rounded-xl p-8">
                                 <div className="text-center mb-6">
                                     <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
@@ -987,11 +601,8 @@
                                 </div>
 
                                 <div className="mt-4 text-sm bg-white/20 rounded-lg p-3 text-center">
-                                    <strong>🌍 GitHub + Supabase Ready!</strong><br/>
-                                    {cloudStorage.isProduction ? 
-                                        'Cross-device quote sharing active!' : 
-                                        'Add your Supabase credentials to enable global sharing!'
-                                    }
+                                    <strong>🎯 Professional Calculator Ready!</strong><br/>
+                                    Complete pricing calculator with enhanced features and detailed breakdown!
                                 </div>
                             </div>
                         </div>
