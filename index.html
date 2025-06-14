@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+const calculateTotal = () => {<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -168,7 +168,12 @@
                 });
             };
 
-            const calculateTotal = () => {
+            const getProfessionalServicesCost = () => {
+                if (formData.professionalServices === 'Advisory') return pricing.advisory;
+                if (formData.professionalServices === 'Analytics') return pricing.analytics;
+                if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
+                return 0;
+            };
                 const bi = parseInt(formData.biWorkspaces) || 0;
                 const ai = parseInt(formData.aiWorkspaces) || 0;
                 let total = pricing.platformFee + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
@@ -631,15 +636,129 @@
                                 </div>
                             </div>
 
-                            {/* Total Display */}
-                            <div className="bg-gradient-to-r from-purple-900 to-pink-500 text-white rounded-xl p-8 text-center">
-                                <h2 className="text-2xl font-semibold mb-4">💰 Total Annual Contract Value</h2>
-                                <div className="text-5xl font-bold mb-2">
-                                    ${calculateTotal().toLocaleString()}
+                            {/* Total Display with Detailed Breakdown */}
+                            <div className="bg-gradient-to-r from-purple-900 to-pink-500 text-white rounded-xl p-8">
+                                <div className="text-center mb-6">
+                                    <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
+                                        <DollarSign className="w-6 h-6" />
+                                        Total Annual Contract Value
+                                    </h2>
+                                    <div className="text-5xl font-bold mb-2">
+                                        ${calculateTotal().toLocaleString()}
+                                    </div>
+                                    <div className="text-lg opacity-90">
+                                        Monthly: ${(calculateTotal()/12).toLocaleString()}
+                                    </div>
                                 </div>
-                                <div className="text-lg opacity-90">
-                                    Monthly: ${(calculateTotal()/12).toLocaleString()}
+
+                                {/* Detailed Pricing Breakdown */}
+                                <div className="bg-white/10 rounded-lg p-6 space-y-4">
+                                    <h3 className="text-lg font-semibold mb-4 text-center">Pricing Breakdown</h3>
+                                    
+                                    {/* Platform Base Fee - Always shown */}
+                                    <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                        <span className="text-white/90">Platform Base Fee</span>
+                                        <span className="font-semibold">${pricing.platformFee.toLocaleString()}</span>
+                                    </div>
+
+                                    {/* BI Workspaces - Only show if > 0 */}
+                                    {formData.biWorkspaces && parseInt(formData.biWorkspaces) > 0 && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo × 12)
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* AI Workspaces - Only show if > 0 */}
+                                    {formData.aiWorkspaces && parseInt(formData.aiWorkspaces) > 0 && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo × 12)
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* LLM Package - Only show if selected */}
+                                    {formData.llmProvider && formData.package && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                {formData.llmProvider} LLM {formData.package} (${pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}/mo × 12)
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${((pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0) * 12).toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Professional Services - Only show if selected */}
+                                    {formData.professionalServices && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">
+                                                Professional Services - {formData.professionalServices}
+                                            </span>
+                                            <span className="font-semibold">
+                                                ${getProfessionalServicesCost().toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Premium Add-ons - Only show selected ones */}
+                                    {formData.additionalEnvironments && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Additional Environments</span>
+                                            <span className="font-semibold">${pricing.additionalEnvironments.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.samlOidc && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">SAML & Multiple OIDC</span>
+                                            <span className="font-semibold">${pricing.samlOidc.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.dataCenterRegions && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Data Center Regions</span>
+                                            <span className="font-semibold">${pricing.dataCenterRegions.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.usageAnalytics && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Usage Analytics</span>
+                                            <span className="font-semibold">${pricing.usageAnalytics.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.auditLog && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">Audit Log</span>
+                                            <span className="font-semibold">${pricing.auditLog.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {formData.hipaaCompliance && (
+                                        <div className="flex justify-between items-center py-2 border-b border-white/20">
+                                            <span className="text-white/90">HIPAA Compliance</span>
+                                            <span className="font-semibold">${pricing.hipaaCompliance.toLocaleString()}</span>
+                                        </div>
+                                    )}
+
+                                    {/* Total Line */}
+                                    <div className="flex justify-between items-center pt-4 text-lg font-bold border-t-2 border-white/30">
+                                        <span>TOTAL ANNUAL</span>
+                                        <span>${calculateTotal().toLocaleString()}</span>
+                                    </div>
                                 </div>
+
                                 <div className="mt-4 text-sm bg-white/20 rounded-lg p-3">
                                     <strong>✅ Working Calculator!</strong><br/>
                                     Simple, clean version with Supabase cloud storage and cross-device quote sharing!
