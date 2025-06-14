@@ -118,7 +118,7 @@
                 prospectName: '',
                 clientWebsite: '',
                 annualRevenue: '',
-                budget: '',
+                numberOfEmployees: '',
                 objectives: '',
                 usageScope: '',
                 monetization: '',
@@ -337,7 +337,7 @@
                                 />
                             </div>
                             
-                            <div className="bg-gradient-to-br from-green-600 to-emerald-500 rounded-xl text-white p-6 mb-6">
+                            <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6 mb-6">
                                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                                     <Database className="w-6 h-6" />
                                     Quote Management
@@ -358,7 +358,7 @@
                                             <button
                                                 onClick={loadQuote}
                                                 disabled={loading}
-                                                className="px-4 py-2 bg-white text-green-600 font-semibold rounded hover:bg-gray-50 disabled:opacity-50"
+                                                className="px-4 py-2 bg-white text-purple-600 font-semibold rounded hover:bg-gray-50 disabled:opacity-50"
                                             >
                                                 {loading ? '🔄' : '📥 LOAD'}
                                             </button>
@@ -370,7 +370,7 @@
                                         <button
                                             onClick={saveQuote}
                                             disabled={loading || !formData.prospectName}
-                                            className="w-full bg-white text-green-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 disabled:opacity-50 mb-2"
+                                            className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 disabled:opacity-50 mb-2"
                                         >
                                             {loading ? '🔄 Saving...' : '☁️ SAVE'}
                                         </button>
@@ -411,13 +411,18 @@
                                     </div>
                                     
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Budget</label>
-                                        <input 
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                            placeholder="e.g. $50K-100K annually"
-                                            value={formData.budget}
-                                            onChange={(e) => handleInputChange('budget', e.target.value)}
-                                        />
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+                                        <select 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                            value={formData.numberOfEmployees}
+                                            onChange={(e) => handleInputChange('numberOfEmployees', e.target.value)}
+                                        >
+                                            <option value="">Select Range</option>
+                                            <option value="<100">&lt;100</option>
+                                            <option value="101-1,000">101-1,000</option>
+                                            <option value="1,001-2,500">1,001-2,500</option>
+                                            <option value="2,500+">2,500+</option>
+                                        </select>
                                     </div>
                                     
                                     <div>
@@ -1039,8 +1044,8 @@
                                             {formData.annualRevenue && (
                                                 <div><strong>Revenue:</strong> {formData.annualRevenue}</div>
                                             )}
-                                            {formData.budget && (
-                                                <div><strong>Budget:</strong> {formData.budget}</div>
+                                            {formData.numberOfEmployees && (
+                                                <div><strong>Employees:</strong> {formData.numberOfEmployees}</div>
                                             )}
                                             {formData.usageScope && (
                                                 <div><strong>Scope:</strong> {formData.usageScope}</div>
