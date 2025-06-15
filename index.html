@@ -1,662 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodData Calculator</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .lucide { width: 1em; height: 1em; stroke: currentColor; stroke-width: 2; fill: none; }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState } = React;
-        const { createRoot } = ReactDOM;
-
-        const Calculator = () => (
-            <svg className="lucide" viewBox="0 0 24 24">
-                <rect width="16" height="20" x="4" y="2" rx="2"/>
-                <line x1="8" x2="16" y1="6" y2="6"/>
-            </svg>
-        );
-
-        const Database = () => (
-            <svg className="lucide" viewBox="0 0 24 24">
-                <ellipse cx="12" cy="5" rx="9" ry="3"/>
-                <path d="m3 5v14c0 3 4 3 9 3s9 0 9-3V5"/>
-            </svg>
-        );
-
-        const Users = () => (
-            <svg className="lucide" viewBox="0 0 24 24">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-            </svg>
-        );
-
-        const Building = () => (
-            <svg className="lucide" viewBox="0 0 24 24">
-                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
-                <path d="M6 12h4"/>
-            </svg>
-        );
-
-        const DollarSign = () => (
-            <svg className="lucide" viewBox="0 0 24 24">
-                <line x1="12" x2="12" y1="2" y2="22"/>
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-        );
-
-        const Globe = () => (
-            <svg className="lucide" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="m12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
-            </svg>
-        );
-
-        const Settings = () => (
-            <svg className="lucide" viewBox="0 0 24 24">
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-                <circle cx="12" cy="12" r="3"/>
-            </svg>
-        );
-
-        class SupabaseStorage {
-            constructor() {
-                this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
-                this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzYXh2cGN3bG14ZGJpZXRtanJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2NzQwOTYsImV4cCI6MjA2NTI1MDA5Nn0.SnjvZx-xVMwtPBe62xY66y6vi1CQq4F04AOy53oRPDE';
-                this.quotes = new Map();
-                this.isProduction = window.location.hostname !== 'claude.ai';
-            }
-
-            async save(code, data) {
-                this.quotes.set(code, { data, timestamp: new Date().toISOString() });
-                if (this.isProduction) {
-                    try {
-                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'apikey': this.supabaseKey,
-                                'Authorization': `Bearer ${this.supabaseKey}`
-                            },
-                            body: JSON.stringify({ code, data, created_at: new Date().toISOString() })
-                        });
-                        return { success: response.ok, code, cloudSaved: response.ok };
-                    } catch (error) {
-                        return { success: false, code, error: error.message };
-                    }
-                }
-                return { success: true, code, cloudSaved: false };
-            }
-
-            async load(code) {
-                if (this.quotes.has(code)) {
-                    const quoteData = this.quotes.get(code);
-                    return { success: true, data: quoteData.data, code };
-                }
-                
-                if (this.isProduction) {
-                    try {
-                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?code=eq.${code}`, {
-                            headers: {
-                                'apikey': this.supabaseKey,
-                                'Authorization': `Bearer ${this.supabaseKey}`
-                            }
-                        });
-                        const quotes = await response.json();
-                        if (quotes && quotes.length > 0) {
-                            return { success: true, data: quotes[0].data, code };
-                        }
-                    } catch (error) {
-                        return { success: false, error: error.message, code };
-                    }
-                }
-                return { success: false, error: 'Quote not found', code };
-            }
-
-            async getRecentQuotes(limit = 10) {
-                const fallbackQuotes = Array.from(this.quotes.entries()).map(([code, quote]) => ({
-                    code,
-                    data: quote.data,
-                    created_at: quote.timestamp
-                })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, limit);
-
-                if (this.isProduction) {
-                    try {
-                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?order=created_at.desc&limit=${limit}`, {
-                            headers: {
-                                'apikey': this.supabaseKey,
-                                'Authorization': `Bearer ${this.supabaseKey}`
-                            }
-                        });
-                        const quotes = await response.json();
-                        return { success: true, quotes: quotes || [] };
-                    } catch (error) {
-                        return { success: false, error: error.message, quotes: fallbackQuotes };
-                    }
-                }
-                return { success: true, quotes: fallbackQuotes };
-            }
-
-            async searchQuotes(searchTerm) {
-                const fallbackQuotes = Array.from(this.quotes.entries())
-                    .filter(([code, quote]) => 
-                        code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (quote.data.prospectName && quote.data.prospectName.toLowerCase().includes(searchTerm.toLowerCase()))
-                    )
-                    .map(([code, quote]) => ({
-                        code,
-                        data: quote.data,
-                        created_at: quote.timestamp
-                    }))
-                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-                if (this.isProduction) {
-                    try {
-                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?or=(code.ilike.*${searchTerm}*,data->>prospectName.ilike.*${searchTerm}*)&order=created_at.desc`, {
-                            headers: {
-                                'apikey': this.supabaseKey,
-                                'Authorization': `Bearer ${this.supabaseKey}`
-                            }
-                        });
-                        const quotes = await response.json();
-                        return { success: true, quotes: quotes || [] };
-                    } catch (error) {
-                        return { success: false, error: error.message, quotes: fallbackQuotes };
-                    }
-                }
-                return { success: true, quotes: fallbackQuotes };
-            }
-
-            async getAllQuotes() {
-                const fallbackQuotes = Array.from(this.quotes.entries()).map(([code, quote]) => ({
-                    code,
-                    data: quote.data,
-                    created_at: quote.timestamp
-                })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-                if (this.isProduction) {
-                    try {
-                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?order=created_at.desc`, {
-                            headers: {
-                                'apikey': this.supabaseKey,
-                                'Authorization': `Bearer ${this.supabaseKey}`
-                            }
-                        });
-                        const quotes = await response.json();
-                        return { success: true, quotes: quotes || [] };
-                    } catch (error) {
-                        return { success: false, error: error.message, quotes: fallbackQuotes };
-                    }
-                }
-                return { success: true, quotes: fallbackQuotes };
-            }
-        }
-
-        const cloudStorage = new SupabaseStorage();
-
-        function GoodDataCalculator() {
-            const [templateCode, setTemplateCode] = useState('');
-            const [message, setMessage] = useState('');
-            const [loading, setLoading] = useState(false);
-            const [editMode, setEditMode] = useState(false);
-            const [showConfirmModal, setShowConfirmModal] = useState(false);
-            const [showSuccessModal, setShowSuccessModal] = useState(false);
-            const [showRecentQuotes, setShowRecentQuotes] = useState(false);
-            const [recentQuotes, setRecentQuotes] = useState([]);
-            const [quotesLoading, setQuotesLoading] = useState(false);
-            const [searchTerm, setSearchTerm] = useState('');
-            const [savedQuoteCode, setSavedQuoteCode] = useState('');
-            
-            const [formData, setFormData] = useState({
-                prospectName: '',
-                clientWebsite: '',
-                annualRevenue: '',
-                numberOfEmployees: '',
-                objectives: '',
-                usageScope: '',
-                monetization: '',
-                growthOpportunity: '',
-                license: '',
-                totalWorkspaces: '',
-                biWorkspaces: '',
-                aiWorkspaces: '',
-                llmProvider: '',
-                package: '',
-                professionalServices: '',
-                additionalEnvironments: false,
-                samlOidc: false,
-                dataCenterRegions: false,
-                usageAnalytics: false,
-                auditLog: false,
-                hipaaCompliance: false
-            });
-
-            const [pricing, setPricing] = useState({
-                platformFee: 36000,
-                professionalLicense: 24000,
-                enterpriseLicense: 36000,
-                biWorkspacePrice: 25,
-                aiWorkspacePrice: 10,
-                advisory: 10000,
-                analytics: 37500,
-                endToEnd: 100000,
-                additionalEnvironments: 12000,
-                samlOidc: 3000,
-                dataCenterRegions: 5000,
-                usageAnalytics: 2500,
-                auditLog: 3000,
-                hipaaCompliance: 8000,
-                llmPackages: {
-                    'Customer': { 'Small': 100, 'Medium': 430, 'Large': 750 },
-                    'GoodData': { 'Small': 200, 'Medium': 750, 'Large': 900 }
-                }
-            });
-
-            const updatePricing = (field, value) => {
-                setPricing(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
-            };
-
-            const updateLLMPricing = (provider, size, value) => {
-                setPricing(prev => ({
-                    ...prev,
-                    llmPackages: {
-                        ...prev.llmPackages,
-                        [provider]: {
-                            ...prev.llmPackages[provider],
-                            [size]: parseInt(value) || 0
-                        }
-                    }
-                }));
-            };
-
-            const handleInputChange = (field, value) => {
-                setFormData(prev => {
-                    const newData = { ...prev, [field]: value };
-                    if (field === 'totalWorkspaces') {
-                        newData.biWorkspaces = value;
-                    }
-                    return newData;
-                });
-            };
-
-            const calculateTotal = () => {
-                const bi = parseInt(formData.biWorkspaces) || 0;
-                const ai = parseInt(formData.aiWorkspaces) || 0;
-                
-                // Use license fee instead of platform fee if license is selected
-                let baseAmount = 0;
-                if (formData.license === 'Professional') {
-                    baseAmount = pricing.professionalLicense;
-                } else if (formData.license === 'Enterprise') {
-                    baseAmount = pricing.enterpriseLicense;
-                } else {
-                    baseAmount = pricing.platformFee; // fallback to platform fee
-                }
-                
-                let total = baseAmount + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
-                
-                if (formData.llmProvider && formData.package) {
-                    const monthlyCost = pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0;
-                    total += monthlyCost * 12;
-                }
-                
-                if (formData.professionalServices === 'Advisory') total += pricing.advisory;
-                if (formData.professionalServices === 'Analytics') total += pricing.analytics;
-                if (formData.professionalServices === 'End-to-end') total += pricing.endToEnd;
-                if (formData.additionalEnvironments) total += pricing.additionalEnvironments;
-                if (formData.samlOidc) total += pricing.samlOidc;
-                if (formData.dataCenterRegions) total += pricing.dataCenterRegions;
-                if (formData.usageAnalytics) total += pricing.usageAnalytics;
-                if (formData.auditLog) total += pricing.auditLog;
-                if (formData.hipaaCompliance) total += pricing.hipaaCompliance;
-                
-                return total;
-            };
-
-            const getProfessionalServicesCost = () => {
-                if (formData.professionalServices === 'Advisory') return pricing.advisory;
-                if (formData.professionalServices === 'Analytics') return pricing.analytics;
-                if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
-                return 0;
-            };
-
-            const generateCode = () => {
-                let companyPart = 'PROSPECT';
-                if (formData.prospectName) {
-                    companyPart = formData.prospectName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 8);
-                }
-                const now = new Date();
-                const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-                const month = monthNames[now.getMonth()];
-                const day = now.getDate().toString().padStart(2, '0');
-                return `${companyPart}-${month}${day}`;
-            };
-
-            const saveQuote = async () => {
-                if (!formData.prospectName) {
-                    setMessage('❌ Please enter a prospect name');
-                    setTimeout(() => setMessage(''), 3000);
-                    return;
-                }
-
-                const code = generateCode();
-                setLoading(true);
-                setMessage('🔄 Saving quote...');
-                
-                try {
-                    const result = await cloudStorage.save(code, formData);
-                    if (result.success) {
-                        setSavedQuoteCode(code);
-                        setShowSuccessModal(true);
-                        setMessage('');
-                    } else {
-                        setMessage(`❌ Save failed: ${result.error}`);
-                        setTimeout(() => setMessage(''), 5000);
-                    }
-                } catch (error) {
-                    setMessage('❌ Save failed');
-                    setTimeout(() => setMessage(''), 3000);
-                }
-                setLoading(false);
-                setShowConfirmModal(false);
-            };
-
-            const handleSaveClick = () => {
-                if (!formData.prospectName) {
-                    setMessage('❌ Please enter a prospect name');
-                    setTimeout(() => setMessage(''), 3000);
-                    return;
-                }
-                setShowConfirmModal(true);
-            };
-
-            const copyToClipboard = async (text) => {
-                try {
-                    await navigator.clipboard.writeText(text);
-                    setMessage('✅ Quote code copied to clipboard!');
-                    setTimeout(() => setMessage(''), 3000);
-                } catch (err) {
-                    setMessage('❌ Failed to copy to clipboard');
-                    setTimeout(() => setMessage(''), 3000);
-                }
-            };
-
-            const loadRecentQuotes = async () => {
-                setQuotesLoading(true);
-                try {
-                    const result = await cloudStorage.getRecentQuotes(20);
-                    if (result.success) {
-                        setRecentQuotes(result.quotes);
-                    } else {
-                        setMessage('❌ Failed to load recent quotes');
-                        setTimeout(() => setMessage(''), 3000);
-                    }
-                } catch (error) {
-                    setMessage('❌ Error loading quotes');
-                    setTimeout(() => setMessage(''), 3000);
-                }
-                setQuotesLoading(false);
-            };
-
-            const searchQuotes = async (term) => {
-                if (!term.trim()) {
-                    loadRecentQuotes();
-                    return;
-                }
-                setQuotesLoading(true);
-                try {
-                    const result = await cloudStorage.searchQuotes(term);
-                    if (result.success) {
-                        setRecentQuotes(result.quotes);
-                    } else {
-                        setMessage('❌ Search failed');
-                        setTimeout(() => setMessage(''), 3000);
-                    }
-                } catch (error) {
-                    setMessage('❌ Search error');
-                    setTimeout(() => setMessage(''), 3000);
-                }
-                setQuotesLoading(false);
-            };
-
-            const loadQuoteFromRecent = async (code) => {
-                setQuotesLoading(true);
-                try {
-                    const result = await cloudStorage.load(code);
-                    if (result.success) {
-                        setFormData(result.data);
-                        setShowRecentQuotes(false);
-                        setMessage(`✅ Quote loaded: ${code}`);
-                        setTimeout(() => setMessage(''), 3000);
-                    } else {
-                        setMessage(`❌ Failed to load quote: ${code}`);
-                        setTimeout(() => setMessage(''), 3000);
-                    }
-                } catch (error) {
-                    setMessage('❌ Error loading quote');
-                    setTimeout(() => setMessage(''), 3000);
-                }
-                setQuotesLoading(false);
-            };
-
-            const calculateQuoteTotal = (quoteData) => {
-                const bi = parseInt(quoteData.biWorkspaces) || 0;
-                const ai = parseInt(quoteData.aiWorkspaces) || 0;
-                
-                let baseAmount = 0;
-                if (quoteData.license === 'Professional') {
-                    baseAmount = pricing.professionalLicense;
-                } else if (quoteData.license === 'Enterprise') {
-                    baseAmount = pricing.enterpriseLicense;
-                } else {
-                    baseAmount = pricing.platformFee;
-                }
-                
-                let total = baseAmount + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
-                
-                if (quoteData.llmProvider && quoteData.package) {
-                    const monthlyCost = pricing.llmPackages[quoteData.llmProvider]?.[quoteData.package] || 0;
-                    total += monthlyCost * 12;
-                }
-                
-                if (quoteData.professionalServices === 'Advisory') total += pricing.advisory;
-                if (quoteData.professionalServices === 'Analytics') total += pricing.analytics;
-                if (quoteData.professionalServices === 'End-to-end') total += pricing.endToEnd;
-                if (quoteData.additionalEnvironments) total += pricing.additionalEnvironments;
-                if (quoteData.samlOidc) total += pricing.samlOidc;
-                if (quoteData.dataCenterRegions) total += pricing.dataCenterRegions;
-                if (quoteData.usageAnalytics) total += pricing.usageAnalytics;
-                if (quoteData.auditLog) total += pricing.auditLog;
-                if (quoteData.hipaaCompliance) total += pricing.hipaaCompliance;
-                
-                return total;
-            };
-
-            const loadQuote = async () => {
-                if (!templateCode.trim()) {
-                    setMessage('❌ Please enter a quote code');
-                    setTimeout(() => setMessage(''), 3000);
-                    return;
-                }
-
-                setLoading(true);
-                setMessage('🔄 Loading quote...');
-                
-                try {
-                    const result = await cloudStorage.load(templateCode.toUpperCase());
-                    if (result.success) {
-                        setFormData(result.data);
-                        setMessage(`✅ Quote loaded: ${result.code}`);
-                        setTemplateCode('');
-                    } else {
-                        setMessage(`❌ Quote not found: ${templateCode.toUpperCase()}`);
-                    }
-                    setTimeout(() => setMessage(''), 5000);
-                } catch (error) {
-                    setMessage('❌ Load failed');
-                    setTimeout(() => setMessage(''), 3000);
-                }
-                setLoading(false);
-            };
-
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 p-4">
-                    <div className="max-w-6xl mx-auto">
-                        
-                        <div className="rounded-xl shadow-xl text-white p-6 mb-6 relative overflow-hidden" style={{
-                            background: `linear-gradient(135deg, #1C0D3F 0%, #A93DF6 50%, #ED26B7 100%)`
-                        }}>
-                            <div className="absolute inset-0 opacity-20">
-                                <div className="absolute inset-0" style={{
-                                    backgroundImage: `repeating-linear-gradient(
-                                        45deg,
-                                        transparent,
-                                        transparent 10px,
-                                        rgba(255, 255, 255, 0.1) 10px,
-                                        rgba(255, 255, 255, 0.1) 12px
-                                    )`
-                                }}></div>
-                            </div>
-                            <div className="relative z-10 flex items-center gap-4">
-                                <div className="bg-white/20 p-3 rounded-xl">
-                                    <Globe className="w-8 h-8" />
-                                </div>
-                                <div className="flex-1">
-                                    <h1 className="text-3xl font-bold mb-2">GoodData Pricing Calculator</h1>
-                                    <div className="text-sm bg-white/20 rounded-lg p-3">
-                                        Professional pricing calculator with editable pricing and detailed breakdown!
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
-                            
-                            <div className="grid md:grid-cols-2 gap-4 mb-6">
-                                <input 
-                                    type="text"
-                                    placeholder="Prospect/Customer Name *"
-                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                    value={formData.prospectName}
-                                    onChange={(e) => handleInputChange('prospectName', e.target.value)}
-                                />
-                                <input 
-                                    type="url"
-                                    placeholder="Client Website"
-                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                    value={formData.clientWebsite}
-                                    onChange={(e) => handleInputChange('clientWebsite', e.target.value)}
-                                />
-                            </div>
-                            
-                            <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6 mb-6">
-                                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                                    <Database className="w-6 h-6" />
-                                    Quote Management
-                                </h2>
-                                
-                                <div className="grid md:grid-cols-3 gap-4 mb-4">
-                                    <div className="bg-white/10 rounded-lg p-4">
-                                        <h3 className="font-semibold mb-3">📥 Load Quote</h3>
-                                        <div className="flex gap-2 mb-2">
-                                            <input 
-                                                type="text"
-                                                placeholder="Enter code"
-                                                value={templateCode}
-                                                onChange={(e) => setTemplateCode(e.target.value)}
-                                                className="flex-1 p-2 text-gray-900 rounded"
-                                                disabled={loading}
-                                            />
-                                            <button
-                                                onClick={loadQuote}
-                                                disabled={loading}
-                                                className="px-4 py-2 bg-white text-purple-600 font-semibold rounded hover:bg-gray-50 disabled:opacity-50"
+<div className="space-y-6">
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Annual Revenue (USD)</label>
+                                            <select 
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                value={formData.annualRevenue}
+                                                onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
                                             >
-                                                {loading ? '🔄' : '📥 LOAD'}
-                                            </button>
+                                                <option value="">Select Range</option>
+                                                <option value="< 10M">&lt; $10M</option>
+                                                <option value="10M - 50M">$10M - $50M</option>
+                                                <option value="50M - 100M">$50M - $100M</option>
+                                                <option value="100M - 500M">$100M - $500M</option>
+                                                <option value="500M+">$500M+</option>
+                                            </select>
                                         </div>
-                                    </div>
-                                    
-                                    <div className="bg-white/10 rounded-lg p-4">
-                                        <h3 className="font-semibold mb-3">☁️ Save Quote</h3>
-                                        <button
-                                            onClick={handleSaveClick}
-                                            disabled={loading || !formData.prospectName}
-                                            className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 disabled:opacity-50 mb-2"
-                                        >
-                                            {loading ? '🔄 Saving...' : '☁️ SAVE'}
-                                        </button>
-                                        {formData.prospectName && (
-                                            <p className="text-white/80 text-sm">Code: <strong>{generateCode()}</strong></p>
-                                        )}
-                                    </div>
-                                    
-                                    <div className="bg-white/10 rounded-lg p-4">
-                                        <h3 className="font-semibold mb-3">📋 Recent Quotes</h3>
-                                        <button
-                                            onClick={() => {
-                                                setShowRecentQuotes(true);
-                                                loadRecentQuotes();
-                                            }}
-                                            className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50"
-                                        >
-                                            📋 VIEW RECENT
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {message && (
-                                    <div className="bg-white/20 rounded-lg p-3">
-                                        <p className="text-white font-medium">{message}</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <Building className="w-6 h-6 text-purple-900" />
-                                    <h2 className="text-xl font-semibold text-gray-800">Customer Profile</h2>
-                                </div>
-                                
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Annual Revenue (USD)</label>
-                                        <select 
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                            value={formData.annualRevenue}
-                                            onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
-                                        >
-                                            <option value="">Select Range</option>
-                                            <option value="< 10M">&lt; $10M</option>
-                                            <option value="10M - 50M">$10M - $50M</option>
-                                            <option value="50M - 100M">$50M - $100M</option>
-                                            <option value="100M - 500M">$100M - $500M</option>
-                                            <option value="500M+">$500M+</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
-                                        <select 
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                            value={formData.numberOfEmployees}
-                                            onChange={(e) => handleInputChange('numberOfEmployees', e.target.value)}
-                                        >
-                                            <option value="">Select Range</option>
-                                            <option value="<100">&lt;100</option>
-                                            <option value="101-1,000">101-1,000</option>
-                                            <option value="1,001-2,500">1,001-2,500</option>
-                                            <option value="2,500+">2,500+</option>
-                                        </select>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+                                            <select 
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                value={formData.numberOfEmployees}
+                                                onChange={(e) => handleInputChange('numberOfEmployees', e.target.value)}
+                                            >
+                                                <option value="">Select Range</option>
+                                                <option value="<100">&lt;100</option>
+                                                <option value="101-1,000">101-1,000</option>
+                                                <option value="1,001-2,500">1,001-2,500</option>
+                                                <option value="2,500+">2,500+</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     
                                     <div>
@@ -675,7 +48,7 @@
                             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                 <h2 className="text-xl font-semibold text-gray-800 mb-6">Usage Plan Assessment</h2>
                                 
-                                <div className="space-y-6">
+                                <div className="grid md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-3">Usage by department or globally?</label>
                                         <div className="space-y-2">
@@ -782,80 +155,82 @@
                                         </select>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Total Workspaces</label>
-                                        <input 
-                                            type="number"
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                            value={formData.totalWorkspaces}
-                                            onChange={(e) => handleInputChange('totalWorkspaces', e.target.value)}
-                                            placeholder="Enter total number of workspaces"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspaces</label>
-                                        <input 
-                                            type="number"
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                            value={formData.biWorkspaces}
-                                            onChange={(e) => handleInputChange('biWorkspaces', e.target.value)}
-                                            placeholder="Number of BI workspaces"
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspaces</label>
-                                        <input 
-                                            type="number"
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                            value={formData.aiWorkspaces}
-                                            onChange={(e) => handleInputChange('aiWorkspaces', e.target.value)}
-                                            placeholder="Number of AI workspaces"
-                                        />
-                                    </div>
-                                    
-                                    {/* Only show LLM Provider when AI workspaces are configured */}
-                                    {parseInt(formData.aiWorkspaces) > 0 && (
+                                    <div className="grid md:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>
-                                            <select 
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                                value={formData.llmProvider}
-                                                onChange={(e) => handleInputChange('llmProvider', e.target.value)}
-                                            >
-                                                <option value="">Select Provider</option>
-                                                <option value="Customer">Customer</option>
-                                                <option value="GoodData">GoodData</option>
-                                            </select>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Total Workspaces</label>
+                                            <input 
+                                                type="number"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                                value={formData.totalWorkspaces}
+                                                onChange={(e) => handleInputChange('totalWorkspaces', e.target.value)}
+                                                placeholder="Enter total number"
+                                            />
                                         </div>
-                                    )}
-                                    
-                                    {/* Only show Package when both AI workspaces and LLM Provider are configured */}
-                                    {parseInt(formData.aiWorkspaces) > 0 && formData.llmProvider && (
+
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
-                                            <select 
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                                value={formData.package}
-                                                onChange={(e) => handleInputChange('package', e.target.value)}
-                                            >
-                                                <option value="">Select Package</option>
-                                                {formData.llmProvider === 'Customer' && (
-                                                    <>
-                                                        <option value="Small">Small - ${pricing.llmPackages.Customer.Small}/month</option>
-                                                        <option value="Medium">Medium - ${pricing.llmPackages.Customer.Medium}/month</option>
-                                                        <option value="Large">Large - ${pricing.llmPackages.Customer.Large}/month</option>
-                                                    </>
-                                                )}
-                                                {formData.llmProvider === 'GoodData' && (
-                                                    <>
-                                                        <option value="Small">Small - ${pricing.llmPackages.GoodData.Small}/month</option>
-                                                        <option value="Medium">Medium - ${pricing.llmPackages.GoodData.Medium}/month</option>
-                                                        <option value="Large">Large - ${pricing.llmPackages.GoodData.Large}/month</option>
-                                                    </>
-                                                )}
-                                            </select>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspaces</label>
+                                            <input 
+                                                type="number"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                                value={formData.biWorkspaces}
+                                                onChange={(e) => handleInputChange('biWorkspaces', e.target.value)}
+                                                placeholder="Number of BI"
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspaces</label>
+                                            <input 
+                                                type="number"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                                value={formData.aiWorkspaces}
+                                                onChange={(e) => handleInputChange('aiWorkspaces', e.target.value)}
+                                                placeholder="Number of AI"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    {parseInt(formData.aiWorkspaces) > 0 && (
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>
+                                                <select 
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                    value={formData.llmProvider}
+                                                    onChange={(e) => handleInputChange('llmProvider', e.target.value)}
+                                                >
+                                                    <option value="">Select Provider</option>
+                                                    <option value="Customer">Customer</option>
+                                                    <option value="GoodData">GoodData</option>
+                                                </select>
+                                            </div>
+                                            
+                                            {parseInt(formData.aiWorkspaces) > 0 && formData.llmProvider && (
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
+                                                    <select 
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                        value={formData.package}
+                                                        onChange={(e) => handleInputChange('package', e.target.value)}
+                                                    >
+                                                        <option value="">Select Package</option>
+                                                        {formData.llmProvider === 'Customer' && (
+                                                            <>
+                                                                <option value="Small">Small - ${pricing.llmPackages.Customer.Small}/month</option>
+                                                                <option value="Medium">Medium - ${pricing.llmPackages.Customer.Medium}/month</option>
+                                                                <option value="Large">Large - ${pricing.llmPackages.Customer.Large}/month</option>
+                                                            </>
+                                                        )}
+                                                        {formData.llmProvider === 'GoodData' && (
+                                                            <>
+                                                                <option value="Small">Small - ${pricing.llmPackages.GoodData.Small}/month</option>
+                                                                <option value="Medium">Medium - ${pricing.llmPackages.GoodData.Medium}/month</option>
+                                                                <option value="Large">Large - ${pricing.llmPackages.GoodData.Large}/month</option>
+                                                            </>
+                                                        )}
+                                                    </select>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -969,7 +344,6 @@
                                 
                                 {editMode && (
                                     <div className="space-y-6">
-                                        {/* Always show platform fee and license pricing if license is selected */}
                                         <div className="grid md:grid-cols-3 gap-4">
                                             {!formData.license && (
                                                 <div>
@@ -1004,7 +378,6 @@
                                                     />
                                                 </div>
                                             )}
-                                            {/* Only show BI workspace pricing if BI workspaces are configured */}
                                             {(parseInt(formData.biWorkspaces) > 0) && (
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspace (monthly)</label>
@@ -1016,7 +389,6 @@
                                                     />
                                                 </div>
                                             )}
-                                            {/* Only show AI workspace pricing if AI workspaces are configured */}
                                             {(parseInt(formData.aiWorkspaces) > 0) && (
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspace (monthly)</label>
@@ -1030,7 +402,6 @@
                                             )}
                                         </div>
 
-                                        {/* Only show professional services pricing if any service is selected */}
                                         {formData.professionalServices && (
                                             <div className="border-t pt-6">
                                                 <h3 className="text-lg font-semibold mb-4">Professional Services</h3>
@@ -1072,7 +443,6 @@
                                             </div>
                                         )}
 
-                                        {/* Only show LLM pricing if provider and package are selected */}
                                         {formData.llmProvider && formData.package && (
                                             <div className="border-t pt-6">
                                                 <h3 className="text-lg font-semibold mb-4">LLM Package Pricing (Monthly)</h3>
@@ -1095,7 +465,6 @@
                                             </div>
                                         )}
 
-                                        {/* Only show add-on pricing for selected add-ons */}
                                         {(formData.additionalEnvironments || formData.samlOidc || formData.dataCenterRegions || 
                                           formData.usageAnalytics || formData.auditLog || formData.hipaaCompliance) && (
                                             <div className="border-t pt-6">
@@ -1489,4 +858,631 @@
         root.render(<GoodDataCalculator />);
     </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodData Calculator</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .lucide { width: 1em; height: 1em; stroke: currentColor; stroke-width: 2; fill: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { createRoot } = ReactDOM;
+
+        const Calculator = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <rect width="16" height="20" x="4" y="2" rx="2"/>
+                <line x1="8" x2="16" y1="6" y2="6"/>
+            </svg>
+        );
+
+        const Database = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                <path d="m3 5v14c0 3 4 3 9 3s9 0 9-3V5"/>
+            </svg>
+        );
+
+        const Users = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+            </svg>
+        );
+
+        const Building = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                <path d="M6 12h4"/>
+            </svg>
+        );
+
+        const DollarSign = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <line x1="12" x2="12" y1="2" y2="22"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+        );
+
+        const Globe = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="m12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+            </svg>
+        );
+
+        const Settings = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        );
+
+        class SupabaseStorage {
+            constructor() {
+                this.supabaseUrl = 'https://ysaxvpcwlmxdbietmjrl.supabase.co';
+                this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzYXh2cGN3bG14ZGJpZXRtanJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2NzQwOTYsImV4cCI6MjA2NTI1MDA5Nn0.SnjvZx-xVMwtPBe62xY66y6vi1CQq4F04AOy53oRPDE';
+                this.quotes = new Map();
+                this.isProduction = window.location.hostname !== 'claude.ai';
+            }
+
+            async save(code, data) {
+                this.quotes.set(code, { data, timestamp: new Date().toISOString() });
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            },
+                            body: JSON.stringify({ code, data, created_at: new Date().toISOString() })
+                        });
+                        return { success: response.ok, code, cloudSaved: response.ok };
+                    } catch (error) {
+                        return { success: false, code, error: error.message };
+                    }
+                }
+                return { success: true, code, cloudSaved: false };
+            }
+
+            async load(code) {
+                if (this.quotes.has(code)) {
+                    const quoteData = this.quotes.get(code);
+                    return { success: true, data: quoteData.data, code };
+                }
+                
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?code=eq.${code}`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        if (quotes && quotes.length > 0) {
+                            return { success: true, data: quotes[0].data, code };
+                        }
+                    } catch (error) {
+                        return { success: false, error: error.message, code };
+                    }
+                }
+                return { success: false, error: 'Quote not found', code };
+            }
+
+            async getRecentQuotes(limit = 10) {
+                const fallbackQuotes = Array.from(this.quotes.entries()).map(([code, quote]) => ({
+                    code,
+                    data: quote.data,
+                    created_at: quote.timestamp
+                })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, limit);
+
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?order=created_at.desc&limit=${limit}`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        return { success: true, quotes: quotes || [] };
+                    } catch (error) {
+                        return { success: false, error: error.message, quotes: fallbackQuotes };
+                    }
+                }
+                return { success: true, quotes: fallbackQuotes };
+            }
+
+            async searchQuotes(searchTerm) {
+                const fallbackQuotes = Array.from(this.quotes.entries())
+                    .filter(([code, quote]) => 
+                        code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (quote.data.prospectName && quote.data.prospectName.toLowerCase().includes(searchTerm.toLowerCase()))
+                    )
+                    .map(([code, quote]) => ({
+                        code,
+                        data: quote.data,
+                        created_at: quote.timestamp
+                    }))
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?or=(code.ilike.*${searchTerm}*,data->>prospectName.ilike.*${searchTerm}*)&order=created_at.desc`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        return { success: true, quotes: quotes || [] };
+                    } catch (error) {
+                        return { success: false, error: error.message, quotes: fallbackQuotes };
+                    }
+                }
+                return { success: true, quotes: fallbackQuotes };
+            }
+
+            async getAllQuotes() {
+                const fallbackQuotes = Array.from(this.quotes.entries()).map(([code, quote]) => ({
+                    code,
+                    data: quote.data,
+                    created_at: quote.timestamp
+                })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (this.isProduction) {
+                    try {
+                        const response = await fetch(`${this.supabaseUrl}/rest/v1/Quotes?order=created_at.desc`, {
+                            headers: {
+                                'apikey': this.supabaseKey,
+                                'Authorization': `Bearer ${this.supabaseKey}`
+                            }
+                        });
+                        const quotes = await response.json();
+                        return { success: true, quotes: quotes || [] };
+                    } catch (error) {
+                        return { success: false, error: error.message, quotes: fallbackQuotes };
+                    }
+                }
+                return { success: true, quotes: fallbackQuotes };
+            }
+        }
+
+        const cloudStorage = new SupabaseStorage();
+
+        function GoodDataCalculator() {
+            const [templateCode, setTemplateCode] = useState('');
+            const [message, setMessage] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [editMode, setEditMode] = useState(false);
+            const [showConfirmModal, setShowConfirmModal] = useState(false);
+            const [showSuccessModal, setShowSuccessModal] = useState(false);
+            const [showRecentQuotes, setShowRecentQuotes] = useState(false);
+            const [recentQuotes, setRecentQuotes] = useState([]);
+            const [quotesLoading, setQuotesLoading] = useState(false);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [savedQuoteCode, setSavedQuoteCode] = useState('');
+            
+            const [formData, setFormData] = useState({
+                prospectName: '',
+                clientWebsite: '',
+                annualRevenue: '',
+                numberOfEmployees: '',
+                objectives: '',
+                usageScope: '',
+                monetization: '',
+                growthOpportunity: '',
+                license: '',
+                totalWorkspaces: '',
+                biWorkspaces: '',
+                aiWorkspaces: '',
+                llmProvider: '',
+                package: '',
+                professionalServices: '',
+                additionalEnvironments: false,
+                samlOidc: false,
+                dataCenterRegions: false,
+                usageAnalytics: false,
+                auditLog: false,
+                hipaaCompliance: false
+            });
+
+            const [pricing, setPricing] = useState({
+                platformFee: 36000,
+                professionalLicense: 24000,
+                enterpriseLicense: 36000,
+                biWorkspacePrice: 25,
+                aiWorkspacePrice: 10,
+                advisory: 10000,
+                analytics: 37500,
+                endToEnd: 100000,
+                additionalEnvironments: 12000,
+                samlOidc: 3000,
+                dataCenterRegions: 5000,
+                usageAnalytics: 2500,
+                auditLog: 3000,
+                hipaaCompliance: 8000,
+                llmPackages: {
+                    'Customer': { 'Small': 100, 'Medium': 430, 'Large': 750 },
+                    'GoodData': { 'Small': 200, 'Medium': 750, 'Large': 900 }
+                }
+            });
+
+            const updatePricing = (field, value) => {
+                setPricing(prev => ({ ...prev, [field]: parseInt(value) || 0 }));
+            };
+
+            const updateLLMPricing = (provider, size, value) => {
+                setPricing(prev => ({
+                    ...prev,
+                    llmPackages: {
+                        ...prev.llmPackages,
+                        [provider]: {
+                            ...prev.llmPackages[provider],
+                            [size]: parseInt(value) || 0
+                        }
+                    }
+                }));
+            };
+
+            const handleInputChange = (field, value) => {
+                setFormData(prev => {
+                    const newData = { ...prev, [field]: value };
+                    if (field === 'totalWorkspaces') {
+                        newData.biWorkspaces = value;
+                    }
+                    return newData;
+                });
+            };
+
+            const calculateTotal = () => {
+                const bi = parseInt(formData.biWorkspaces) || 0;
+                const ai = parseInt(formData.aiWorkspaces) || 0;
+                
+                let baseAmount = 0;
+                if (formData.license === 'Professional') {
+                    baseAmount = pricing.professionalLicense;
+                } else if (formData.license === 'Enterprise') {
+                    baseAmount = pricing.enterpriseLicense;
+                } else {
+                    baseAmount = pricing.platformFee;
+                }
+                
+                let total = baseAmount + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
+                
+                if (formData.llmProvider && formData.package) {
+                    const monthlyCost = pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0;
+                    total += monthlyCost * 12;
+                }
+                
+                if (formData.professionalServices === 'Advisory') total += pricing.advisory;
+                if (formData.professionalServices === 'Analytics') total += pricing.analytics;
+                if (formData.professionalServices === 'End-to-end') total += pricing.endToEnd;
+                if (formData.additionalEnvironments) total += pricing.additionalEnvironments;
+                if (formData.samlOidc) total += pricing.samlOidc;
+                if (formData.dataCenterRegions) total += pricing.dataCenterRegions;
+                if (formData.usageAnalytics) total += pricing.usageAnalytics;
+                if (formData.auditLog) total += pricing.auditLog;
+                if (formData.hipaaCompliance) total += pricing.hipaaCompliance;
+                
+                return total;
+            };
+
+            const getProfessionalServicesCost = () => {
+                if (formData.professionalServices === 'Advisory') return pricing.advisory;
+                if (formData.professionalServices === 'Analytics') return pricing.analytics;
+                if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
+                return 0;
+            };
+
+            const generateCode = () => {
+                let companyPart = 'PROSPECT';
+                if (formData.prospectName) {
+                    companyPart = formData.prospectName.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 8);
+                }
+                const now = new Date();
+                const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+                const month = monthNames[now.getMonth()];
+                const day = now.getDate().toString().padStart(2, '0');
+                return `${companyPart}-${month}${day}`;
+            };
+
+            const saveQuote = async () => {
+                if (!formData.prospectName) {
+                    setMessage('❌ Please enter a prospect name');
+                    setTimeout(() => setMessage(''), 3000);
+                    return;
+                }
+
+                const code = generateCode();
+                setLoading(true);
+                setMessage('🔄 Saving quote...');
+                
+                try {
+                    const result = await cloudStorage.save(code, formData);
+                    if (result.success) {
+                        setSavedQuoteCode(code);
+                        setShowSuccessModal(true);
+                        setMessage('');
+                    } else {
+                        setMessage(`❌ Save failed: ${result.error}`);
+                        setTimeout(() => setMessage(''), 5000);
+                    }
+                } catch (error) {
+                    setMessage('❌ Save failed');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setLoading(false);
+                setShowConfirmModal(false);
+            };
+
+            const handleSaveClick = () => {
+                if (!formData.prospectName) {
+                    setMessage('❌ Please enter a prospect name');
+                    setTimeout(() => setMessage(''), 3000);
+                    return;
+                }
+                setShowConfirmModal(true);
+            };
+
+            const loadQuote = async () => {
+                if (!templateCode.trim()) {
+                    setMessage('❌ Please enter a quote code');
+                    setTimeout(() => setMessage(''), 3000);
+                    return;
+                }
+
+                setLoading(true);
+                setMessage('🔄 Loading quote...');
+                
+                try {
+                    const result = await cloudStorage.load(templateCode.toUpperCase());
+                    if (result.success) {
+                        setFormData(result.data);
+                        setMessage(`✅ Quote loaded: ${result.code}`);
+                        setTemplateCode('');
+                    } else {
+                        setMessage(`❌ Quote not found: ${templateCode.toUpperCase()}`);
+                    }
+                    setTimeout(() => setMessage(''), 5000);
+                } catch (error) {
+                    setMessage('❌ Load failed');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setLoading(false);
+            };
+
+            const copyToClipboard = async (text) => {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    setMessage('✅ Quote code copied to clipboard!');
+                    setTimeout(() => setMessage(''), 3000);
+                } catch (err) {
+                    setMessage('❌ Failed to copy to clipboard');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+            };
+
+            const loadRecentQuotes = async () => {
+                setQuotesLoading(true);
+                try {
+                    const result = await cloudStorage.getRecentQuotes(20);
+                    if (result.success) {
+                        setRecentQuotes(result.quotes);
+                    } else {
+                        setMessage('❌ Failed to load recent quotes');
+                        setTimeout(() => setMessage(''), 3000);
+                    }
+                } catch (error) {
+                    setMessage('❌ Error loading quotes');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setQuotesLoading(false);
+            };
+
+            const searchQuotes = async (term) => {
+                if (!term.trim()) {
+                    loadRecentQuotes();
+                    return;
+                }
+                setQuotesLoading(true);
+                try {
+                    const result = await cloudStorage.searchQuotes(term);
+                    if (result.success) {
+                        setRecentQuotes(result.quotes);
+                    } else {
+                        setMessage('❌ Search failed');
+                        setTimeout(() => setMessage(''), 3000);
+                    }
+                } catch (error) {
+                    setMessage('❌ Search error');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setQuotesLoading(false);
+            };
+
+            const loadQuoteFromRecent = async (code) => {
+                setQuotesLoading(true);
+                try {
+                    const result = await cloudStorage.load(code);
+                    if (result.success) {
+                        setFormData(result.data);
+                        setShowRecentQuotes(false);
+                        setMessage(`✅ Quote loaded: ${code}`);
+                        setTimeout(() => setMessage(''), 3000);
+                    } else {
+                        setMessage(`❌ Failed to load quote: ${code}`);
+                        setTimeout(() => setMessage(''), 3000);
+                    }
+                } catch (error) {
+                    setMessage('❌ Error loading quote');
+                    setTimeout(() => setMessage(''), 3000);
+                }
+                setQuotesLoading(false);
+            };
+
+            const calculateQuoteTotal = (quoteData) => {
+                const bi = parseInt(quoteData.biWorkspaces) || 0;
+                const ai = parseInt(quoteData.aiWorkspaces) || 0;
+                
+                let baseAmount = 0;
+                if (quoteData.license === 'Professional') {
+                    baseAmount = pricing.professionalLicense;
+                } else if (quoteData.license === 'Enterprise') {
+                    baseAmount = pricing.enterpriseLicense;
+                } else {
+                    baseAmount = pricing.platformFee;
+                }
+                
+                let total = baseAmount + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
+                
+                if (quoteData.llmProvider && quoteData.package) {
+                    const monthlyCost = pricing.llmPackages[quoteData.llmProvider]?.[quoteData.package] || 0;
+                    total += monthlyCost * 12;
+                }
+                
+                if (quoteData.professionalServices === 'Advisory') total += pricing.advisory;
+                if (quoteData.professionalServices === 'Analytics') total += pricing.analytics;
+                if (quoteData.professionalServices === 'End-to-end') total += pricing.endToEnd;
+                if (quoteData.additionalEnvironments) total += pricing.additionalEnvironments;
+                if (quoteData.samlOidc) total += pricing.samlOidc;
+                if (quoteData.dataCenterRegions) total += pricing.dataCenterRegions;
+                if (quoteData.usageAnalytics) total += pricing.usageAnalytics;
+                if (quoteData.auditLog) total += pricing.auditLog;
+                if (quoteData.hipaaCompliance) total += pricing.hipaaCompliance;
+                
+                return total;
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 p-4">
+                    <div className="max-w-6xl mx-auto">
+                        
+                        <div className="rounded-xl shadow-xl text-white p-6 mb-6 relative overflow-hidden" style={{
+                            background: `linear-gradient(135deg, #1C0D3F 0%, #A93DF6 50%, #ED26B7 100%)`
+                        }}>
+                            <div className="absolute inset-0 opacity-20">
+                                <div className="absolute inset-0" style={{
+                                    backgroundImage: `repeating-linear-gradient(
+                                        45deg,
+                                        transparent,
+                                        transparent 10px,
+                                        rgba(255, 255, 255, 0.1) 10px,
+                                        rgba(255, 255, 255, 0.1) 12px
+                                    )`
+                                }}></div>
+                            </div>
+                            <div className="relative z-10 flex items-center gap-4">
+                                <div className="bg-white/20 p-3 rounded-xl">
+                                    <Globe className="w-8 h-8" />
+                                </div>
+                                <div className="flex-1">
+                                    <h1 className="text-3xl font-bold mb-2">GoodData Pricing Calculator</h1>
+                                    <div className="text-sm bg-white/20 rounded-lg p-3">
+                                        Professional pricing calculator with editable pricing and detailed breakdown!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
+                            <div className="grid md:grid-cols-2 gap-4 mb-6">
+                                <input 
+                                    type="text"
+                                    placeholder="Prospect/Customer Name *"
+                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                    value={formData.prospectName}
+                                    onChange={(e) => handleInputChange('prospectName', e.target.value)}
+                                />
+                                <input 
+                                    type="url"
+                                    placeholder="Client Website"
+                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                    value={formData.clientWebsite}
+                                    onChange={(e) => handleInputChange('clientWebsite', e.target.value)}
+                                />
+                            </div>
+                            
+                            <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6 mb-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                                    <Database className="w-6 h-6" />
+                                    Quote Management
+                                </h2>
+                                
+                                <div className="grid md:grid-cols-3 gap-4 mb-4">
+                                    <div className="bg-white/10 rounded-lg p-4">
+                                        <h3 className="font-semibold mb-3">📥 Load Quote</h3>
+                                        <div className="flex gap-2 mb-2">
+                                            <input 
+                                                type="text"
+                                                placeholder="Enter code"
+                                                value={templateCode}
+                                                onChange={(e) => setTemplateCode(e.target.value)}
+                                                className="flex-1 p-2 text-gray-900 rounded"
+                                                disabled={loading}
+                                            />
+                                            <button
+                                                onClick={loadQuote}
+                                                disabled={loading}
+                                                className="px-4 py-2 bg-white text-purple-600 font-semibold rounded hover:bg-gray-50 disabled:opacity-50"
+                                            >
+                                                {loading ? '🔄' : '📥 LOAD'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-white/10 rounded-lg p-4">
+                                        <h3 className="font-semibold mb-3">☁️ Save Quote</h3>
+                                        <button
+                                            onClick={handleSaveClick}
+                                            disabled={loading || !formData.prospectName}
+                                            className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 disabled:opacity-50 mb-2"
+                                        >
+                                            {loading ? '🔄 Saving...' : '☁️ SAVE'}
+                                        </button>
+                                        {formData.prospectName && (
+                                            <p className="text-white/80 text-sm">Code: <strong>{generateCode()}</strong></p>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="bg-white/10 rounded-lg p-4">
+                                        <h3 className="font-semibold mb-3">📋 Recent Quotes</h3>
+                                        <button
+                                            onClick={() => {
+                                                setShowRecentQuotes(true);
+                                                loadRecentQuotes();
+                                            }}
+                                            className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50"
+                                        >
+                                            📋 VIEW RECENT
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {message && (
+                                    <div className="bg-white/20 rounded-lg p-3">
+                                        <p className="text-white font-medium">{message}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Building className="w-6 h-6 text-purple-900" />
+                                    <h2 className="text-xl font-semibold text-gray-800">Customer Profile</h2>
+                                </div>
+                                
+                                <div className="space-y-6
