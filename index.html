@@ -24,18 +24,115 @@
                 <circle cx="12" cy="12" r="10"/>
                 <path d="m12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
             </svg>
+        const Building = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                <path d="M6 12h4"/>
+            </svg>
+        const DollarSign = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <line x1="12" x2="12" y1="2" y2="22"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+        const Users = () => (
+            <svg className="lucide" viewBox="0 0 24 24">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+            </svg>
         );
 
         function GoodDataCalculator() {
             const [formData, setFormData] = useState({
                 prospectName: '',
+                clientWebsite: '',
+                annualRevenue: '',
+                numberOfEmployees: '',
+                objectives: '',
+                usageScope: '',
+                monetization: '',
+                growthOpportunity: '',
                 license: '',
+                totalWorkspaces: '',
                 biWorkspaces: '',
-                aiWorkspaces: ''
+                aiWorkspaces: '',
+                llmProvider: '',
+                package: '',
+                professionalServices: '',
+                additionalEnvironments: false,
+                samlOidc: false,
+                dataCenterRegions: false,
+                usageAnalytics: false,
+                auditLog: false,
+                hipaaCompliance: false
+            });
+
+            const [pricing, setPricing] = useState({
+                platformFee: 36000,
+                professionalLicense: 24000,
+                enterpriseLicense: 36000,
+                biWorkspacePrice: 25,
+                aiWorkspacePrice: 10,
+                advisory: 10000,
+                analytics: 37500,
+                endToEnd: 100000,
+                additionalEnvironments: 12000,
+                samlOidc: 3000,
+                dataCenterRegions: 5000,
+                usageAnalytics: 2500,
+                auditLog: 3000,
+                hipaaCompliance: 8000,
+                llmPackages: {
+                    'Customer': { 'Small': 100, 'Medium': 430, 'Large': 750 },
+                    'GoodData': { 'Small': 200, 'Medium': 750, 'Large': 900 }
+                }
             });
 
             const handleInputChange = (field, value) => {
-                setFormData(prev => ({ ...prev, [field]: value }));
+                setFormData(prev => {
+                    const newData = { ...prev, [field]: value };
+                    if (field === 'totalWorkspaces') {
+                        newData.biWorkspaces = value;
+                    }
+                    return newData;
+                });
+            const getProfessionalServicesCost = () => {
+                if (formData.professionalServices === 'Advisory') return pricing.advisory;
+                if (formData.professionalServices === 'Analytics') return pricing.analytics;
+                if (formData.professionalServices === 'End-to-end') return pricing.endToEnd;
+                return 0;
+            };
+
+            const calculateTotal = () => {
+                const bi = parseInt(formData.biWorkspaces) || 0;
+                const ai = parseInt(formData.aiWorkspaces) || 0;
+                
+                let baseAmount = 0;
+                if (formData.license === 'Professional') {
+                    baseAmount = pricing.professionalLicense;
+                } else if (formData.license === 'Enterprise') {
+                    baseAmount = pricing.enterpriseLicense;
+                } else {
+                    baseAmount = pricing.platformFee;
+                }
+                
+                let total = baseAmount + (bi * pricing.biWorkspacePrice * 12) + (ai * pricing.aiWorkspacePrice * 12);
+                
+                if (formData.llmProvider && formData.package) {
+                    const monthlyCost = pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0;
+                    total += monthlyCost * 12;
+                }
+                
+                if (formData.professionalServices === 'Advisory') total += pricing.advisory;
+                if (formData.professionalServices === 'Analytics') total += pricing.analytics;
+                if (formData.professionalServices === 'End-to-end') total += pricing.endToEnd;
+                if (formData.additionalEnvironments) total += pricing.additionalEnvironments;
+                if (formData.samlOidc) total += pricing.samlOidc;
+                if (formData.dataCenterRegions) total += pricing.dataCenterRegions;
+                if (formData.usageAnalytics) total += pricing.usageAnalytics;
+                if (formData.auditLog) total += pricing.auditLog;
+                if (formData.hipaaCompliance) total += pricing.hipaaCompliance;
+                
+                return total;
             };
 
             return (
@@ -49,6 +146,99 @@
                                 <div className="bg-white/20 p-3 rounded-xl">
                                     <Globe className="w-8 h-8" />
                                 </div>
+
+                            {/* Professional Services Section */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Users className="w-6 h-6 text-blue-600" />
+                                    <h2 className="text-xl font-semibold text-gray-800">Professional Services</h2>
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Professional Services</label>
+                                    <select 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                        value={formData.professionalServices}
+                                        onChange={(e) => handleInputChange('professionalServices', e.target.value)}
+                                    >
+                                        <option value="">Select Service</option>
+                                        <option value="Advisory">Advisory Package - 80 hours - ${pricing.advisory.toLocaleString()}</option>
+                                        <option value="Analytics">Analytics Package - 300 hours - ${pricing.analytics.toLocaleString()}</option>
+                                        <option value="End-to-end">End-to-end Package - 800 hours - ${pricing.endToEnd.toLocaleString()}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Add-ons Section */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-6">Add-ons</h2>
+                                
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div className="space-y-4">
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.additionalEnvironments}
+                                                onChange={(e) => handleInputChange('additionalEnvironments', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Additional Environments - ${pricing.additionalEnvironments.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.samlOidc}
+                                                onChange={(e) => handleInputChange('samlOidc', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">SAML/OIDC - ${pricing.samlOidc.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.dataCenterRegions}
+                                                onChange={(e) => handleInputChange('dataCenterRegions', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Data Center Regions - ${pricing.dataCenterRegions.toLocaleString()}</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.usageAnalytics}
+                                                onChange={(e) => handleInputChange('usageAnalytics', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Usage Analytics - ${pricing.usageAnalytics.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.auditLog}
+                                                onChange={(e) => handleInputChange('auditLog', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Audit Log - ${pricing.auditLog.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.hipaaCompliance}
+                                                onChange={(e) => handleInputChange('hipaaCompliance', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">HIPAA Compliance - ${pricing.hipaaCompliance.toLocaleString()}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                                 <div className="flex-1">
                                     <h1 className="text-3xl font-bold mb-2">
                                         <span style={{color: 'yellow'}}>GoodData</span> Pricing Calculator
@@ -70,40 +260,199 @@
                                     value={formData.prospectName}
                                     onChange={(e) => handleInputChange('prospectName', e.target.value)}
                                 />
-                                <select 
-                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                    value={formData.license}
-                                    onChange={(e) => handleInputChange('license', e.target.value)}
-                                >
-                                    <option value="">Select License</option>
-                                    <option value="Professional">Professional - $24,000/year</option>
-                                    <option value="Enterprise">Enterprise - $36,000/year</option>
-                                </select>
+                                <input 
+                                    type="url"
+                                    placeholder="Client Website"
+                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                    value={formData.clientWebsite}
+                                    onChange={(e) => handleInputChange('clientWebsite', e.target.value)}
+                                />
                             </div>
 
-                            <div className="grid md:grid-cols-2 gap-4 mb-6">
-                                <input 
-                                    type="number"
-                                    placeholder="BI Workspaces"
-                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                    value={formData.biWorkspaces}
-                                    onChange={(e) => handleInputChange('biWorkspaces', e.target.value)}
-                                />
-                                <input 
-                                    type="number"
-                                    placeholder="AI Workspaces"
-                                    className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                    value={formData.aiWorkspaces}
-                                    onChange={(e) => handleInputChange('aiWorkspaces', e.target.value)}
-                                />
+                            {/* Customer Profile Section */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Building className="w-6 h-6 text-purple-900" />
+                                    <h2 className="text-xl font-semibold text-gray-800">Customer Profile</h2>
+                                </div>
+                                
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Annual Revenue (USD)</label>
+                                        <select 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                            value={formData.annualRevenue}
+                                            onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
+                                        >
+                                            <option value="">Select Range</option>
+                                            <option value="< 10M">&lt; $10M</option>
+                                            <option value="10M - 50M">$10M - $50M</option>
+                                            <option value="50M - 100M">$50M - $100M</option>
+                                            <option value="100M - 500M">$100M - $500M</option>
+                                            <option value="500M+">$500M+</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+                                        <select 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                            value={formData.numberOfEmployees}
+                                            onChange={(e) => handleInputChange('numberOfEmployees', e.target.value)}
+                                        >
+                                            <option value="">Select Range</option>
+                                            <option value="<100">&lt;100</option>
+                                            <option value="101-1,000">101-1,000</option>
+                                            <option value="1,001-2,500">1,001-2,500</option>
+                                            <option value="2,500+">2,500+</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">What are they looking to achieve with GoodData?</label>
+                                        <textarea 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"
+                                            rows="4"
+                                            placeholder="Describe their goals and objectives..."
+                                            value={formData.objectives}
+                                            onChange={(e) => handleInputChange('objectives', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* License Selection */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-6">License & Workspaces</h2>
+                                <div className="space-y-4">
+                                    <select 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                        value={formData.license}
+                                        onChange={(e) => handleInputChange('license', e.target.value)}
+                                    >
+                                        <option value="">Select License</option>
+                                        <option value="Professional">Professional - $24,000/year</option>
+                                        <option value="Enterprise">Enterprise - $36,000/year</option>
+                                    </select>
+
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <input 
+                                            type="number"
+                                            placeholder="BI Workspaces"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                            value={formData.biWorkspaces}
+                                            onChange={(e) => handleInputChange('biWorkspaces', e.target.value)}
+                                        />
+                                        <input 
+                                            type="number"
+                                            placeholder="AI Workspaces"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                            value={formData.aiWorkspaces}
+                                            onChange={(e) => handleInputChange('aiWorkspaces', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6">
-                                <h2 className="text-2xl font-bold mb-4">Simple Calculator Test</h2>
-                                <p>Company: {formData.prospectName || 'Enter name'}</p>
-                                <p>License: {formData.license || 'None selected'}</p>
-                                <p>BI Workspaces: {formData.biWorkspaces || '0'}</p>
-                                <p>AI Workspaces: {formData.aiWorkspaces || '0'}</p>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <DollarSign className="w-8 h-8" />
+                                    <h2 className="text-2xl font-bold">Pricing Summary</h2>
+                                </div>
+                                
+                                <div className="bg-white/10 rounded-lg p-6">
+                                    <h3 className="text-lg font-semibold mb-4">Annual Breakdown</h3>
+                                    <div className="space-y-2 text-sm">
+                                        {formData.license === 'Professional' && (
+                                            <div className="flex justify-between">
+                                                <span>Professional License:</span>
+                                                <span>${pricing.professionalLicense.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.license === 'Enterprise' && (
+                                            <div className="flex justify-between">
+                                                <span>Enterprise License:</span>
+                                                <span>${pricing.enterpriseLicense.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {!formData.license && (
+                                            <div className="flex justify-between">
+                                                <span>Platform Fee:</span>
+                                                <span>${pricing.platformFee.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {parseInt(formData.biWorkspaces) > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo):</span>
+                                                <span>${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {parseInt(formData.aiWorkspaces) > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo):</span>
+                                                <span>${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {getProfessionalServicesCost() > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>Professional Services:</span>
+                                                <span>${getProfessionalServicesCost().toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.additionalEnvironments && (
+                                            <div className="flex justify-between">
+                                                <span>Additional Environments:</span>
+                                                <span>${pricing.additionalEnvironments.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.samlOidc && (
+                                            <div className="flex justify-between">
+                                                <span>SAML/OIDC:</span>
+                                                <span>${pricing.samlOidc.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.dataCenterRegions && (
+                                            <div className="flex justify-between">
+                                                <span>Data Center Regions:</span>
+                                                <span>${pricing.dataCenterRegions.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.usageAnalytics && (
+                                            <div className="flex justify-between">
+                                                <span>Usage Analytics:</span>
+                                                <span>${pricing.usageAnalytics.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.auditLog && (
+                                            <div className="flex justify-between">
+                                                <span>Audit Log:</span>
+                                                <span>${pricing.auditLog.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        {formData.hipaaCompliance && (
+                                            <div className="flex justify-between">
+                                                <span>HIPAA Compliance:</span>
+                                                <span>${pricing.hipaaCompliance.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="mt-6 pt-4 border-t border-white/20">
+                                        <div className="text-2xl font-bold">
+                                            Total: ${calculateTotal().toLocaleString()}
+                                        </div>
+                                        <div className="text-sm opacity-90 mb-4">
+                                            Annual Contract Value
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {formData.objectives && (
+                                    <div className="mt-6 bg-white/10 rounded-lg p-4">
+                                        <h4 className="font-semibold mb-2">Customer Objectives:</h4>
+                                        <p className="text-sm opacity-90">{formData.objectives}</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
