@@ -27,10 +27,11 @@
             </svg>
         );
 
-        const Building = () => (
+        // Additional icon
+        const Users = () => (
             <svg className="lucide" viewBox="0 0 24 24">
-                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
-                <path d="M6 12h4"/>
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
             </svg>
         );
 
@@ -226,6 +227,290 @@
                                             value={formData.objectives}
                                             onChange={(e) => handleInputChange('objectives', e.target.value)}
                                         />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Usage Plan Assessment Section */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-6">Usage Plan Assessment</h2>
+                                
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-3">Usage by department or globally?</label>
+                                        <div className="space-y-2">
+                                            <label className="flex items-center">
+                                                <input 
+                                                    type="radio"
+                                                    name="usageScope"
+                                                    value="Department"
+                                                    checked={formData.usageScope === 'Department'}
+                                                    onChange={(e) => handleInputChange('usageScope', e.target.value)}
+                                                    className="w-4 h-4 text-purple-600"
+                                                />
+                                                <span className="ml-2 text-gray-700">Department</span>
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input 
+                                                    type="radio"
+                                                    name="usageScope"
+                                                    value="Globally"
+                                                    checked={formData.usageScope === 'Globally'}
+                                                    onChange={(e) => handleInputChange('usageScope', e.target.value)}
+                                                    className="w-4 h-4 text-purple-600"
+                                                />
+                                                <span className="ml-2 text-gray-700">Globally</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-3">If they will monetize the product, how?</label>
+                                        <div className="space-y-2">
+                                            <label className="flex items-center">
+                                                <input 
+                                                    type="radio"
+                                                    name="monetization"
+                                                    value="YES"
+                                                    checked={formData.monetization === 'YES'}
+                                                    onChange={(e) => handleInputChange('monetization', e.target.value)}
+                                                    className="w-4 h-4 text-purple-600"
+                                                />
+                                                <span className="ml-2 text-gray-700">YES</span>
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input 
+                                                    type="radio"
+                                                    name="monetization"
+                                                    value="NO"
+                                                    checked={formData.monetization === 'NO'}
+                                                    onChange={(e) => handleInputChange('monetization', e.target.value)}
+                                                    className="w-4 h-4 text-purple-600"
+                                                />
+                                                <span className="ml-2 text-gray-700">NO</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-3">Is there a significant growth opportunity here?</label>
+                                        <div className="space-y-2">
+                                            <label className="flex items-center">
+                                                <input 
+                                                    type="radio"
+                                                    name="growthOpportunity"
+                                                    value="YES"
+                                                    checked={formData.growthOpportunity === 'YES'}
+                                                    onChange={(e) => handleInputChange('growthOpportunity', e.target.value)}
+                                                    className="w-4 h-4 text-purple-600"
+                                                />
+                                                <span className="ml-2 text-gray-700">YES</span>
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input 
+                                                    type="radio"
+                                                    name="growthOpportunity"
+                                                    value="NO"
+                                                    checked={formData.growthOpportunity === 'NO'}
+                                                    onChange={(e) => handleInputChange('growthOpportunity', e.target.value)}
+                                                    className="w-4 h-4 text-purple-600"
+                                                />
+                                                <span className="ml-2 text-gray-700">NO</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Workspace Configuration Section */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Database className="w-6 h-6 text-pink-500" />
+                                    <h2 className="text-xl font-semibold text-gray-800">Workspace Configuration</h2>
+                                </div>
+                                
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">License Type</label>
+                                        <select 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                            value={formData.license}
+                                            onChange={(e) => handleInputChange('license', e.target.value)}
+                                        >
+                                            <option value="">Select License</option>
+                                            <option value="Professional">Professional - $24,000/year</option>
+                                            <option value="Enterprise">Enterprise - $36,000/year</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Total Workspaces</label>
+                                        <input 
+                                            type="number"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                            value={formData.totalWorkspaces}
+                                            onChange={(e) => handleInputChange('totalWorkspaces', e.target.value)}
+                                            placeholder="Enter total number of workspaces"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspaces</label>
+                                        <input 
+                                            type="number"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                            value={formData.biWorkspaces}
+                                            onChange={(e) => handleInputChange('biWorkspaces', e.target.value)}
+                                            placeholder="Number of BI workspaces"
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspaces</label>
+                                        <input 
+                                            type="number"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                            value={formData.aiWorkspaces}
+                                            onChange={(e) => handleInputChange('aiWorkspaces', e.target.value)}
+                                            placeholder="Number of AI workspaces"
+                                        />
+                                    </div>
+                                    
+                                    {/* Only show LLM Provider when AI workspaces are configured */}
+                                    {parseInt(formData.aiWorkspaces) > 0 && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>
+                                            <select 
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                value={formData.llmProvider}
+                                                onChange={(e) => handleInputChange('llmProvider', e.target.value)}
+                                            >
+                                                <option value="">Select Provider</option>
+                                                <option value="Customer">Customer</option>
+                                                <option value="GoodData">GoodData</option>
+                                            </select>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Only show Package when both AI workspaces and LLM Provider are configured */}
+                                    {parseInt(formData.aiWorkspaces) > 0 && formData.llmProvider && (
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
+                                            <select 
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                value={formData.package}
+                                                onChange={(e) => handleInputChange('package', e.target.value)}
+                                            >
+                                                <option value="">Select Package</option>
+                                                {formData.llmProvider === 'Customer' && (
+                                                    <>
+                                                        <option value="Small">Small - ${pricing.llmPackages.Customer.Small}/month</option>
+                                                        <option value="Medium">Medium - ${pricing.llmPackages.Customer.Medium}/month</option>
+                                                        <option value="Large">Large - ${pricing.llmPackages.Customer.Large}/month</option>
+                                                    </>
+                                                )}
+                                                {formData.llmProvider === 'GoodData' && (
+                                                    <>
+                                                        <option value="Small">Small - ${pricing.llmPackages.GoodData.Small}/month</option>
+                                                        <option value="Medium">Medium - ${pricing.llmPackages.GoodData.Medium}/month</option>
+                                                        <option value="Large">Large - ${pricing.llmPackages.GoodData.Large}/month</option>
+                                                    </>
+                                                )}
+                                            </select>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Professional Services Section */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Users className="w-6 h-6 text-blue-600" />
+                                    <h2 className="text-xl font-semibold text-gray-800">Professional Services</h2>
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Professional Services</label>
+                                    <select 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                        value={formData.professionalServices}
+                                        onChange={(e) => handleInputChange('professionalServices', e.target.value)}
+                                    >
+                                        <option value="">Select Service</option>
+                                        <option value="Advisory">Advisory Package - 80 hours - ${pricing.advisory.toLocaleString()}</option>
+                                        <option value="Analytics">Analytics Package - 300 hours - ${pricing.analytics.toLocaleString()}</option>
+                                        <option value="End-to-end">End-to-end Package - 800 hours - ${pricing.endToEnd.toLocaleString()}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Add-ons Section */}
+                            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-6">Add-ons</h2>
+                                
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div className="space-y-4">
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.additionalEnvironments}
+                                                onChange={(e) => handleInputChange('additionalEnvironments', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Additional Environments - ${pricing.additionalEnvironments.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.samlOidc}
+                                                onChange={(e) => handleInputChange('samlOidc', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">SAML/OIDC - ${pricing.samlOidc.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.dataCenterRegions}
+                                                onChange={(e) => handleInputChange('dataCenterRegions', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Data Center Regions - ${pricing.dataCenterRegions.toLocaleString()}</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.usageAnalytics}
+                                                onChange={(e) => handleInputChange('usageAnalytics', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Usage Analytics - ${pricing.usageAnalytics.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.auditLog}
+                                                onChange={(e) => handleInputChange('auditLog', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">Audit Log - ${pricing.auditLog.toLocaleString()}</span>
+                                        </label>
+                                        
+                                        <label className="flex items-center">
+                                            <input 
+                                                type="checkbox"
+                                                checked={formData.hipaaCompliance}
+                                                onChange={(e) => handleInputChange('hipaaCompliance', e.target.checked)}
+                                                className="w-4 h-4 text-purple-600 rounded"
+                                            />
+                                            <span className="ml-2 text-gray-700">HIPAA Compliance - ${pricing.hipaaCompliance.toLocaleString()}</span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
