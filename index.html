@@ -139,7 +139,7 @@
     <!-- Security Configuration - CHANGE THESE SETTINGS! -->
     <script>
         const SECURITY_CONFIG = {
-            password: "GDC2025",
+            password: "GDC2025!",
             allowedDomains: ["gooddata.com",],
             sessionTimeout: 4 * 60 * 60 * 1000, // 4 hours
             showWatermark: true
@@ -166,16 +166,11 @@
             <!-- Step 2: Email Verification -->
             <div id="emailStep" class="hidden">
                 <div class="security-title">✅ Email Verification</div>
-                <div class="security-subtitle">Please verify your company affiliation</div>
-                
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" id="nameInput" class="form-input" placeholder="Your full name">
-                </div>
+                <div class="security-subtitle">Please verify your company email address</div>
                 
                 <div class="form-group">
                     <label class="form-label">Company Email</label>
-                    <input type="email" id="emailInput" class="form-input" placeholder="your.email@company.com">
+                    <input type="email" id="emailInput" class="form-input" placeholder="your.email@company.com" autofocus>
                     <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
                         Allowed domains: gooddata.com, yourcompany.com
                     </div>
@@ -1723,15 +1718,8 @@
         
         // Email validation
         function validateEmail() {
-            const name = document.getElementById('nameInput').value;
             const email = document.getElementById('emailInput').value;
             const errorDiv = document.getElementById('emailError');
-            
-            if (!name.trim()) {
-                errorDiv.textContent = 'Please enter your full name.';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
             
             if (!email.trim()) {
                 errorDiv.textContent = 'Please enter your email address.';
@@ -1749,7 +1737,7 @@
             }
             
             // Success - grant access
-            setSession({ name, email });
+            setSession({ email });
             grantAccess();
         }
         
