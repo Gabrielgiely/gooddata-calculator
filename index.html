@@ -1,4 +1,658 @@
-<!DOCTYPE html>
+</div>
+
+                            {/* All the original modals - Recent Quotes, Confirmation, Success */}
+                            {showRecentQuotes && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div className="bg-white rounded-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden shadow-2xl">
+                                        <div className="p-6 border-b border-gray-200">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                                    📋 Recent Quotes
+                                                </h3>
+                                                <button
+                                                    onClick={() => setShowRecentQuotes(false)}
+                                                    className="text-gray-400 hover:text-gray-600"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Search by company name or quote code..."
+                                                    value={searchTerm}
+                                                    onChange={(e) => {
+                                                        setSearchTerm(e.target.value);
+                                                        searchQuotes(e.target.value);
+                                                    }}
+                                                    className="flex-1 p-2 border border-gray-300 rounded-lg"
+                                                />
+                                                <button
+                                                    onClick={loadRecentQuotes}
+                                                    disabled={quotesLoading}
+                                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                                                >
+                                                    {quotesLoading ? '🔄' : '🔄 Refresh'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="overflow-y-auto max-h-96 p-6">
+                                            {quotesLoading ? (
+                                                <div className="text-center py-8">
+                                                    <div className="text-gray-500">🔄 Loading quotes...</div>
+                                                </div>
+                                            ) : recentQuotes.length === 0 ? (
+                                                <div className="text-center py-8">
+                                                    <div className="text-gray-500">No quotes found</div>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    {recentQuotes.map((quote, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                                                            onClick={() => loadQuoteFromRecent(quote.code)}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-center gap-3 mb-2">
+                                                                        <span className="font-mono font-bold text-purple-600">
+                                                                            {quote.code}
+                                                                        </span>
+                                                                        <span className="font-semibold text-gray-900">
+                                                                            {quote.data.prospectName || 'Unknown Company'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-600 space-y-1">
+                                                                        <div className="flex gap-4">
+                                                                            {quote.data.license && (
+                                                                                <span>License: {quote.data.license}</span>
+                                                                            )}
+                                                                            {quote.data.biWorkspaces && (
+                                                                                <span>BI: {quote.data.biWorkspaces}</span>
+                                                                            )}
+                                                                            {quote.data.aiWorkspaces && (
+                                                                                <span>AI: {quote.data.aiWorkspaces}</span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div>
+                                                                            Created: {new Date(quote.created_at).toLocaleDateString()} at {new Date(quote.created_at).toLocaleTimeString()}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="text-lg font-bold text-green-600">
+                                                                        ${calculateQuoteTotal(quote.data).toLocaleString()}
+                                                                    </div>
+                                                                    <div className="text-sm text-gray-500">
+                                                                        Annual Value
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            loadQuoteFromRecent(quote.code);
+                                                                        }}
+                                                                        className="mt-2 px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200"
+                                                                    >
+                                                                        Load Quote
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Confirmation Modal */}
+                            {showConfirmModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div className="bg-white rounded-xl p-6 max-w-md mx-4 shadow-2xl">
+                                        <div className="text-center">
+                                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
+                                                <Database className="h-6 w-6 text-purple-600" />
+                                            </div>
+                                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                Save Quote Confirmation
+                                            </h3>
+                                            <p className="text-sm text-gray-500 mb-6">
+                                                Are you sure you want to save this quote for <strong>{formData.prospectName}</strong>?
+                                                <br />
+                                                Quote code will be: <strong>{generateCode()}</strong>
+                                            </p>
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={() => setShowConfirmModal(false)}
+                                                    className="flex-1 bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    onClick={saveQuote}
+                                                    disabled={loading}
+                                                    className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50"
+                                                >
+                                                    {loading ? 'Saving...' : 'Yes, Save'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Success Modal */}
+                            {showSuccessModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div className="bg-white rounded-xl p-6 max-w-md mx-4 shadow-2xl">
+                                        <div className="text-center">
+                                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                                                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                                🎉 Quote Saved Successfully!
+                                            </h3>
+                                            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                                                <p className="text-sm text-gray-600 mb-2">Quote Code:</p>
+                                                <p className="text-xl font-bold text-purple-600 mb-3">{savedQuoteCode}</p>
+                                                <p className="text-sm text-gray-500 mb-3">
+                                                    Company: {formData.prospectName}<br />
+                                                    Total: ${calculateTotal().toLocaleString()}<br />
+                                                    Saved: {new Date().toLocaleString()}
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-3 mb-4">
+                                                <button
+                                                    onClick={() => copyToClipboard(savedQuoteCode)}
+                                                    className="flex-1 bg-purple-100 text-purple-700 px-4 py-2 rounded-lg font-medium hover:bg-purple-200 flex items-center justify-center gap-2"
+                                                >
+                                                    📋 Copy Code
+                                                </button>
+                                                <button
+                                                    onClick={() => copyToClipboard(`Quote ${savedQuoteCode}: ${formData.prospectName} - ${calculateTotal().toLocaleString()}`)}
+                                                    className="flex-1 bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 flex items-center justify-center gap-2"
+                                                >
+                                                    📄 Copy Summary
+                                                </button>
+                                            </div>
+                                            <button
+                                                onClick={() => setShowSuccessModal(false)}
+                                                className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200"
+                                            >
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            const root = createRoot(document.getElementById('root'));
+            root.render(<GoodDataCalculator />);
+        </script>
+    </div>
+
+    <!-- Security Logic -->
+    <script>
+        // Session management
+        function getSession() {
+            try {
+                const session = localStorage.getItem('gooddata_session');
+                if (!session) return null;
+                
+                const sessionData = JSON.parse(session);
+                const now = Date.now();
+                
+                // Check if session expired
+                if (now - sessionData.timestamp > SECURITY_CONFIG.sessionTimeout) {
+                    localStorage.removeItem('gooddata_session');
+                    return null;
+                }
+                
+                return sessionData;
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        function setSession(userData) {
+            const sessionData = {
+                timestamp: Date.now(),
+                user: userData
+            };
+            try {
+                localStorage.setItem('gooddata_session', JSON.stringify(sessionData));
+            } catch (e) {
+                console.warn('Session storage failed');
+            }
+        }
+        
+        // Password validation
+        function validatePassword() {
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('passwordError');
+            
+            if (password !== SECURITY_CONFIG.password) {
+                errorDiv.textContent = 'Invalid password. Access denied.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            errorDiv.classList.add('hidden');
+            document.getElementById('passwordStep').classList.add('hidden');
+            document.getElementById('emailStep').classList.remove('hidden');
+        }
+        
+        // Email validation
+        function validateEmail() {
+            const email = document.getElementById('emailInput').value;
+            const errorDiv = document.getElementById('emailError');
+            
+            if (!email.trim()) {
+                errorDiv.textContent = 'Please enter your email address.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            const domain = email.split('@')[1]?.toLowerCase();
+            const isValidDomain = SECURITY_CONFIG.allowedDomains.some(d => d.toLowerCase() === domain);
+            
+            if (!isValidDomain) {
+                errorDiv.textContent = 'Please use your company email address.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Success - grant access
+            setSession({ email });
+            grantAccess();
+        }
+        
+        // Grant access to calculator
+        function grantAccess() {
+            document.getElementById('securityOverlay').classList.add('hidden');
+            document.getElementById('calculatorContent').classList.add('authenticated');
+            
+            if (SECURITY_CONFIG.showWatermark) {
+                document.getElementById('watermark').classList.remove('hidden');
+            }
+        }
+        
+        // Enter key handling
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const passwordStep = document.getElementById('passwordStep');
+                const emailStep = document.getElementById('emailStep');
+                
+                if (!passwordStep.classList.contains('hidden')) {
+                    validatePassword();
+                } else if (!emailStep.classList.contains('hidden')) {
+                    validateEmail();
+                }
+            }
+        });
+        
+        // Check if already authenticated on page load
+        window.addEventListener('load', function() {
+            const session = getSession();
+            if (session) {
+                grantAccess();
+            }
+        });
+        
+        // Auto-focus first input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('passwordInput').focus();
+        });
+    </script>
+</body>
+</html>
+                                        </div>
+
+                                {/* Pricing Editor */}
+                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className="flex items-center gap-3">
+                                            <Settings className="w-6 h-6 text-gray-600" />
+                                            <h2 className="text-xl font-semibold text-gray-800">Pricing Editor</h2>
+                                        </div>
+                                        <button
+                                            onClick={() => setEditMode(!editMode)}
+                                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                                        >
+                                            {editMode ? 'Close Editor' : 'Edit Pricing'}
+                                        </button>
+                                    </div>
+                                    
+                                    {editMode && (
+                                        <div className="space-y-6">
+                                            {/* Always show platform fee and license pricing if license is selected */}
+                                            <div className="grid md:grid-cols-3 gap-4">
+                                                {!formData.license && (
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Platform Fee</label>
+                                                        <input 
+                                                            type="number"
+                                                            className="w-full p-3 border border-gray-300 rounded-lg"
+                                                            value={pricing.platformFee}
+                                                            onChange={(e) => updatePricing('platformFee', e.target.value)}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {formData.license === 'Professional' && (
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Professional License</label>
+                                                        <input 
+                                                            type="number"
+                                                            className="w-full p-3 border border-gray-300 rounded-lg"
+                                                            value={pricing.professionalLicense}
+                                                            onChange={(e) => updatePricing('professionalLicense', e.target.value)}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {formData.license === 'Enterprise' && (
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Enterprise License</label>
+                                                        <input 
+                                                            type="number"
+                                                            className="w-full p-3 border border-gray-300 rounded-lg"
+                                                            value={pricing.enterpriseLicense}
+                                                            onChange={(e) => updatePricing('enterpriseLicense', e.target.value)}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {/* Only show BI workspace pricing if BI workspaces are configured */}
+                                                {(parseInt(formData.biWorkspaces) > 0) && (
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspace (monthly)</label>
+                                                        <input 
+                                                            type="number"
+                                                            className="w-full p-3 border border-gray-300 rounded-lg"
+                                                            value={pricing.biWorkspacePrice}
+                                                            onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {/* Only show AI workspace pricing if AI workspaces are configured */}
+                                                {(parseInt(formData.aiWorkspaces) > 0) && (
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspace (monthly)</label>
+                                                        <input 
+                                                            type="number"
+                                                            className="w-full p-3 border border-gray-300 rounded-lg"
+                                                            value={pricing.aiWorkspacePrice}
+                                                            onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Only show professional services pricing if any service is selected */}
+                                            {formData.professionalServices && (
+                                                <div className="border-t pt-6">
+                                                    <div className="grid md:grid-cols-3 gap-4">
+                                                        {formData.professionalServices === 'Advisory' && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Advisory Package</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.advisory}
+                                                                    onChange={(e) => updatePricing('advisory', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {formData.professionalServices === 'Analytics' && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Analytics Package</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.analytics}
+                                                                    onChange={(e) => updatePricing('analytics', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {formData.professionalServices === 'End-to-end' && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">End-to-end Package</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.endToEnd}
+                                                                    onChange={(e) => updatePricing('endToEnd', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Only show LLM pricing if provider and package are selected */}
+                                            {formData.llmProvider && formData.package && (
+                                                <div className="border-t pt-6">
+                                                    <h3 className="text-lg font-semibold mb-4">LLM Package Pricing (Monthly)</h3>
+                                                    <div className="grid md:grid-cols-1 gap-6">
+                                                        <div>
+                                                            <h4 className="font-medium mb-3">{formData.llmProvider} Provider - {formData.package} Package</h4>
+                                                            <div className="max-w-xs">
+                                                                <div className="flex gap-2">
+                                                                    <label className="w-16 text-sm">{formData.package}:</label>
+                                                                    <input 
+                                                                        type="number"
+                                                                        className="flex-1 p-2 border border-gray-300 rounded"
+                                                                        value={pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}
+                                                                        onChange={(e) => updateLLMPricing(formData.llmProvider, formData.package, e.target.value)}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Only show add-on pricing for selected add-ons */}
+                                            {(formData.additionalEnvironments || formData.samlOidc || formData.dataCenterRegions || 
+                                              formData.usageAnalytics || formData.auditLog || formData.hipaaCompliance) && (
+                                                <div className="border-t pt-6">
+                                                    <h3 className="text-lg font-semibold mb-4">Add-ons</h3>
+                                                    <div className="grid md:grid-cols-3 gap-4">
+                                                        {formData.additionalEnvironments && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Environments</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.additionalEnvironments}
+                                                                    onChange={(e) => updatePricing('additionalEnvironments', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {formData.samlOidc && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">SAML/OIDC</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.samlOidc}
+                                                                    onChange={(e) => updatePricing('samlOidc', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {formData.dataCenterRegions && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Data Center Regions</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.dataCenterRegions}
+                                                                    onChange={(e) => updatePricing('dataCenterRegions', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {formData.usageAnalytics && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Usage Analytics</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.usageAnalytics}
+                                                                    onChange={(e) => updatePricing('usageAnalytics', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {formData.auditLog && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Audit Log</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.auditLog}
+                                                                    onChange={(e) => updatePricing('auditLog', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {formData.hipaaCompliance && (
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-2">HIPAA Compliance</label>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
+                                                                    value={pricing.hipaaCompliance}
+                                                                    onChange={(e) => updatePricing('hipaaCompliance', e.target.value)}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Pricing Summary */}
+                                <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <DollarSign className="w-8 h-8" />
+                                        <h2 className="text-2xl font-bold">Pricing Summary</h2>
+                                    </div>
+                                    
+                                    <div className="bg-white/10 rounded-lg p-6">
+                                        <h3 className="text-lg font-semibold mb-4">Annual Breakdown</h3>
+                                        <div className="space-y-2 text-sm">
+                                            {formData.license === 'Professional' && (
+                                                <div className="flex justify-between">
+                                                    <span>Professional License:</span>
+                                                    <span>${pricing.professionalLicense.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.license === 'Enterprise' && (
+                                                <div className="flex justify-between">
+                                                    <span>Enterprise License:</span>
+                                                    <span>${pricing.enterpriseLicense.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {!formData.license && (
+                                                <div className="flex justify-between">
+                                                    <span>Platform Fee:</span>
+                                                    <span>${pricing.platformFee.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {parseInt(formData.biWorkspaces) > 0 && (
+                                                <div className="flex justify-between">
+                                                    <span>BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo):</span>
+                                                    <span>${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {parseInt(formData.aiWorkspaces) > 0 && (
+                                                <div className="flex justify-between">
+                                                    <span>AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo):</span>
+                                                    <span>${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.llmProvider && formData.package && (
+                                                <div className="flex justify-between">
+                                                    <span>LLM Package ({formData.llmProvider} {formData.package}):</span>
+                                                    <span>${(pricing.llmPackages[formData.llmProvider]?.[formData.package] * 12 || 0).toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {getProfessionalServicesCost() > 0 && (
+                                                <div className="flex justify-between">
+                                                    <span>Professional Services:</span>
+                                                    <span>${getProfessionalServicesCost().toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.additionalEnvironments && (
+                                                <div className="flex justify-between">
+                                                    <span>Additional Environments:</span>
+                                                    <span>${pricing.additionalEnvironments.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.samlOidc && (
+                                                <div className="flex justify-between">
+                                                    <span>SAML/OIDC:</span>
+                                                    <span>${pricing.samlOidc.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.dataCenterRegions && (
+                                                <div className="flex justify-between">
+                                                    <span>Data Center Regions:</span>
+                                                    <span>${pricing.dataCenterRegions.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.usageAnalytics && (
+                                                <div className="flex justify-between">
+                                                    <span>Usage Analytics:</span>
+                                                    <span>${pricing.usageAnalytics.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.auditLog && (
+                                                <div className="flex justify-between">
+                                                    <span>Audit Log:</span>
+                                                    <span>${pricing.auditLog.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.hipaaCompliance && (
+                                                <div className="flex justify-between">
+                                                    <span>HIPAA Compliance:</span>
+                                                    <span>${pricing.hipaaCompliance.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="mt-6 pt-4 border-t border-white/20">
+                                            <div className="text-2xl font-bold">
+                                                Total: ${calculateTotal().toLocaleString()}
+                                            </div>
+                                            <div className="text-sm opacity-90 mb-4">
+                                                Annual Contract Value
+                                            </div>
+                                            <button
+                                                onClick={handleSaveClick}
+                                                disabled={loading || !formData.prospectName}
+                                                className="w-full bg-white text-purple-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                                            >
+                                                {loading ? '🔄 Saving...' : '💾 Save Quote'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    {formData.objectives && (
+                                        <div className="mt-6 bg-white/10 rounded-lg p-4">
+                                            <h4 className="font-semibold mb-2">Customer Objectives:</h4>
+                                            <p className="text-sm opacity-90">{formData.objectives}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -702,151 +1356,6 @@
                                         )`
                                     }}></div>
                                 </div>
-                                <div className="relative z-10 flex items-center gap-4">
-                                    <div className="bg-white/20 p-3 rounded-xl">
-                                        <Globe className="w-8 h-8" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h1 className="text-3xl font-bold mb-2">GoodData Pricing Calculator</h1>
-                                        <div className="text-sm bg-white/20 rounded-lg p-3 flex items-center gap-2">
-                                            🔒 Professional pricing calculator - Secured Access
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
-                                
-                                <div className="grid md:grid-cols-2 gap-4 mb-6">
-                                    <input 
-                                        type="text"
-                                        placeholder="Prospect/Customer Name *"
-                                        className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                        value={formData.prospectName}
-                                        onChange={(e) => handleInputChange('prospectName', e.target.value)}
-                                    />
-                                    <input 
-                                        type="url"
-                                        placeholder="Client Website"
-                                        className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                        value={formData.clientWebsite}
-                                        onChange={(e) => handleInputChange('clientWebsite', e.target.value)}
-                                    />
-                                </div>
-                                
-                                <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6 mb-6">
-                                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                                        <Database className="w-6 h-6" />
-                                        Quote Management
-                                    </h2>
-                                    
-                                    <div className="grid md:grid-cols-3 gap-4 mb-4">
-                                        <div className="bg-white/10 rounded-lg p-4">
-                                            <h3 className="font-semibold mb-3">📥 Load Quote</h3>
-                                            <div className="flex gap-2 mb-2">
-                                                <input 
-                                                    type="text"
-                                                    placeholder="Enter code"
-                                                    value={templateCode}
-                                                    onChange={(e) => setTemplateCode(e.target.value)}
-                                                    className="flex-1 p-2 text-gray-900 rounded"
-                                                    disabled={loading}
-                                                />
-                                                <button
-                                                    onClick={loadQuote}
-                                                    disabled={loading}
-                                                    className="px-4 py-2 bg-white text-purple-600 font-semibold rounded hover:bg-gray-50 disabled:opacity-50"
-                                                >
-                                                    {loading ? '🔄' : '📥 LOAD'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="bg-white/10 rounded-lg p-4">
-                                            <h3 className="font-semibold mb-3">☁️ Save Quote</h3>
-                                            <button
-                                                onClick={handleSaveClick}
-                                                disabled={loading || !formData.prospectName}
-                                                className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 disabled:opacity-50 mb-2"
-                                            >
-                                                {loading ? '🔄 Saving...' : '☁️ SAVE'}
-                                            </button>
-                                            {formData.prospectName && (
-                                                <p className="text-white/80 text-sm">Code: <strong>{generateCode()}</strong></p>
-                                            )}
-                                        </div>
-                                        
-                                        <div className="bg-white/10 rounded-lg p-4">
-                                            <h3 className="font-semibold mb-3">📋 Recent Quotes</h3>
-                                            <button
-                                                onClick={() => {
-                                                    setShowRecentQuotes(true);
-                                                    loadRecentQuotes();
-                                                }}
-                                                className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50"
-                                            >
-                                                📋 VIEW RECENT
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {message && (
-                                        <div className="bg-white/20 rounded-lg p-3">
-                                            <p className="text-white font-medium">{message}</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <Building className="w-6 h-6 text-purple-900" />
-                                        <h2 className="text-xl font-semibold text-gray-800">Customer Profile</h2>
-                                    </div>
-                                    
-                                    <div className="space-y-6">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Annual Revenue (USD)</label>
-                                            <select 
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                                value={formData.annualRevenue}
-                                                onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
-                                            >
-                                                <option value="">Select Range</option>
-                                                <option value="< 10M">&lt; $10M</option>
-                                                <option value="10M - 50M">$10M - $50M</option>
-                                                <option value="50M - 100M">$50M - $100M</option>
-                                                <option value="100M - 500M">$100M - $500M</option>
-                                                <option value="500M+">$500M+</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
-                                            <select 
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                                value={formData.numberOfEmployees}
-                                                onChange={(e) => handleInputChange('numberOfEmployees', e.target.value)}
-                                            >
-                                                <option value="">Select Range</option>
-                                                <option value="<100">&lt;100</option>
-                                                <option value="101-1,000">101-1,000</option>
-                                                <option value="1,001-2,500">1,001-2,500</option>
-                                                <option value="2,500+">2,500+</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">What are they looking to achieve with GoodData?</label>
-                                            <textarea 
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"
-                                                rows="4"
-                                                placeholder="Describe their goals and objectives..."
-                                                value={formData.objectives}
-                                                onChange={(e) => handleInputChange('objectives', e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                     <h2 className="text-xl font-semibold text-gray-800 mb-6">Usage Plan Assessment</h2>
@@ -1127,656 +1636,151 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Pricing Editor */}
-                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div className="flex items-center gap-3">
-                                            <Settings className="w-6 h-6 text-gray-600" />
-                                            <h2 className="text-xl font-semibold text-gray-800">Pricing Editor</h2>
-                                        </div>
-                                        <button
-                                            onClick={() => setEditMode(!editMode)}
-                                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                                        >
-                                            {editMode ? 'Close Editor' : 'Edit Pricing'}
-                                        </button>
+                                <div className="relative z-10 flex items-center gap-4">
+                                    <div className="bg-white/20 p-3 rounded-xl">
+                                        <Globe className="w-8 h-8" />
                                     </div>
-                                    
-                                    {editMode && (
-                                        <div className="space-y-6">
-                                            {/* Always show platform fee and license pricing if license is selected */}
-                                            <div className="grid md:grid-cols-3 gap-4">
-                                                {!formData.license && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Platform Fee</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.platformFee}
-                                                            onChange={(e) => updatePricing('platformFee', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {formData.license === 'Professional' && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Professional License</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.professionalLicense}
-                                                            onChange={(e) => updatePricing('professionalLicense', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {formData.license === 'Enterprise' && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Enterprise License</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.enterpriseLicense}
-                                                            onChange={(e) => updatePricing('enterpriseLicense', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {/* Only show BI workspace pricing if BI workspaces are configured */}
-                                                {(parseInt(formData.biWorkspaces) > 0) && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspace (monthly)</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.biWorkspacePrice}
-                                                            onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {/* Only show AI workspace pricing if AI workspaces are configured */}
-                                                {(parseInt(formData.aiWorkspaces) > 0) && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspace (monthly)</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.aiWorkspacePrice}
-                                                            onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Only show professional services pricing if any service is selected */}
-                                            {formData.professionalServices && (
-                                                <div className="border-t pt-6">
-                                                    <div className="grid md:grid-cols-3 gap-4">
-                                                        {formData.professionalServices === 'Advisory' && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Advisory Package</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.advisory}
-                                                                    onChange={(e) => updatePricing('advisory', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {formData.professionalServices === 'Analytics' && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Analytics Package</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.analytics}
-                                                                    onChange={(e) => updatePricing('analytics', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {formData.professionalServices === 'End-to-end' && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">End-to-end Package</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.endToEnd}
-                                                                    onChange={(e) => updatePricing('endToEnd', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Only show LLM pricing if provider and package are selected */}
-                                            {formData.llmProvider && formData.package && (
-                                                <div className="border-t pt-6">
-                                                    <h3 className="text-lg font-semibold mb-4">LLM Package Pricing (Monthly)</h3>
-                                                    <div className="grid md:grid-cols-1 gap-6">
-                                                        <div>
-                                                            <h4 className="font-medium mb-3">{formData.llmProvider} Provider - {formData.package} Package</h4>
-                                                            <div className="max-w-xs">
-                                                                <div className="flex gap-2">
-                                                                    <label className="w-16 text-sm">{formData.package}:</label>
-                                                                    <input 
-                                                                        type="number"
-                                                                        className="flex-1 p-2 border border-gray-300 rounded"
-                                                                        value={pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}
-                                                                        onChange={(e) => updateLLMPricing(formData.llmProvider, formData.package, e.target.value)}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Only show add-on pricing for selected add-ons */}
-                                            {(formData.additionalEnvironments || formData.samlOidc || formData.dataCenterRegions || 
-                                              formData.usageAnalytics || formData.auditLog || formData.hipaaCompliance) && (
-                                                <div className="border-t pt-6">
-                                                    <h3 className="text-lg font-semibold mb-4">Add-ons</h3>
-                                                    <div className="grid md:grid-cols-3 gap-4">
-                                                        {formData.additionalEnvironments && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Environments</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.additionalEnvironments}
-                                                                    onChange={(e) => updatePricing('additionalEnvironments', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {formData.samlOidc && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">SAML/OIDC</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.samlOidc}
-                                                                    onChange={(e) => updatePricing('samlOidc', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {formData.dataCenterRegions && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Data Center Regions</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.dataCenterRegions}
-                                                                    onChange={(e) => updatePricing('dataCenterRegions', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {formData.usageAnalytics && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Usage Analytics</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.usageAnalytics}
-                                                                    onChange={(e) => updatePricing('usageAnalytics', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {formData.auditLog && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">Audit Log</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.auditLog}
-                                                                    onChange={(e) => updatePricing('auditLog', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        {formData.hipaaCompliance && (
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-gray-700 mb-2">HIPAA Compliance</label>
-                                                                <input 
-                                                                    type="number"
-                                                                    className="w-full p-3 border border-gray-300 rounded-lg"
-                                                                    value={pricing.hipaaCompliance}
-                                                                    onChange={(e) => updatePricing('hipaaCompliance', e.target.value)}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Pricing Summary */}
-                                <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <DollarSign className="w-8 h-8" />
-                                        <h2 className="text-2xl font-bold">Pricing Summary</h2>
-                                    </div>
-                                    
-                                    <div className="bg-white/10 rounded-lg p-6">
-                                        <h3 className="text-lg font-semibold mb-4">Annual Breakdown</h3>
-                                        <div className="space-y-2 text-sm">
-                                            {formData.license === 'Professional' && (
-                                                <div className="flex justify-between">
-                                                    <span>Professional License:</span>
-                                                    <span>${pricing.professionalLicense.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.license === 'Enterprise' && (
-                                                <div className="flex justify-between">
-                                                    <span>Enterprise License:</span>
-                                                    <span>${pricing.enterpriseLicense.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {!formData.license && (
-                                                <div className="flex justify-between">
-                                                    <span>Platform Fee:</span>
-                                                    <span>${pricing.platformFee.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {parseInt(formData.biWorkspaces) > 0 && (
-                                                <div className="flex justify-between">
-                                                    <span>BI Workspaces ({formData.biWorkspaces} × ${pricing.biWorkspacePrice}/mo):</span>
-                                                    <span>${(parseInt(formData.biWorkspaces) * pricing.biWorkspacePrice * 12).toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {parseInt(formData.aiWorkspaces) > 0 && (
-                                                <div className="flex justify-between">
-                                                    <span>AI Workspaces ({formData.aiWorkspaces} × ${pricing.aiWorkspacePrice}/mo):</span>
-                                                    <span>${(parseInt(formData.aiWorkspaces) * pricing.aiWorkspacePrice * 12).toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.llmProvider && formData.package && (
-                                                <div className="flex justify-between">
-                                                    <span>LLM Package ({formData.llmProvider} {formData.package}):</span>
-                                                    <span>${(pricing.llmPackages[formData.llmProvider]?.[formData.package] * 12 || 0).toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {getProfessionalServicesCost() > 0 && (
-                                                <div className="flex justify-between">
-                                                    <span>Professional Services:</span>
-                                                    <span>${getProfessionalServicesCost().toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.additionalEnvironments && (
-                                                <div className="flex justify-between">
-                                                    <span>Additional Environments:</span>
-                                                    <span>${pricing.additionalEnvironments.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.samlOidc && (
-                                                <div className="flex justify-between">
-                                                    <span>SAML/OIDC:</span>
-                                                    <span>${pricing.samlOidc.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.dataCenterRegions && (
-                                                <div className="flex justify-between">
-                                                    <span>Data Center Regions:</span>
-                                                    <span>${pricing.dataCenterRegions.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.usageAnalytics && (
-                                                <div className="flex justify-between">
-                                                    <span>Usage Analytics:</span>
-                                                    <span>${pricing.usageAnalytics.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.auditLog && (
-                                                <div className="flex justify-between">
-                                                    <span>Audit Log:</span>
-                                                    <span>${pricing.auditLog.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                            {formData.hipaaCompliance && (
-                                                <div className="flex justify-between">
-                                                    <span>HIPAA Compliance:</span>
-                                                    <span>${pricing.hipaaCompliance.toLocaleString()}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        
-                                        <div className="mt-6 pt-4 border-t border-white/20">
-                                            <div className="text-2xl font-bold">
-                                                Total: ${calculateTotal().toLocaleString()}
-                                            </div>
-                                            <div className="text-sm opacity-90 mb-4">
-                                                Annual Contract Value
-                                            </div>
-                                            <button
-                                                onClick={handleSaveClick}
-                                                disabled={loading || !formData.prospectName}
-                                                className="w-full bg-white text-purple-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
-                                            >
-                                                {loading ? '🔄 Saving...' : '💾 Save Quote'}
-                                            </button>
+                                    <div className="flex-1">
+                                        <h1 className="text-3xl font-bold mb-2">GoodData Pricing Calculator</h1>
+                                        <div className="text-sm bg-white/20 rounded-lg p-3 flex items-center gap-2">
+                                            🔒 Professional pricing calculator - Secured Access
                                         </div>
                                     </div>
-                                    
-                                    {formData.objectives && (
-                                        <div className="mt-6 bg-white/10 rounded-lg p-4">
-                                            <h4 className="font-semibold mb-2">Customer Objectives:</h4>
-                                            <p className="text-sm opacity-90">{formData.objectives}</p>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 
-                            {/* All the original modals - Recent Quotes, Confirmation, Success */}
-                            {showRecentQuotes && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                    <div className="bg-white rounded-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden shadow-2xl">
-                                        <div className="p-6 border-b border-gray-200">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                                                    📋 Recent Quotes
-                                                </h3>
-                                                <button
-                                                    onClick={() => setShowRecentQuotes(false)}
-                                                    className="text-gray-400 hover:text-gray-600"
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <input
+                            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
+                                
+                                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                                    <input 
+                                        type="text"
+                                        placeholder="Prospect/Customer Name *"
+                                        className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                        value={formData.prospectName}
+                                        onChange={(e) => handleInputChange('prospectName', e.target.value)}
+                                    />
+                                    <input 
+                                        type="url"
+                                        placeholder="Client Website"
+                                        className="w-full p-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                        value={formData.clientWebsite}
+                                        onChange={(e) => handleInputChange('clientWebsite', e.target.value)}
+                                    />
+                                </div>
+                                
+                                <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6 mb-6">
+                                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                                        <Database className="w-6 h-6" />
+                                        Quote Management
+                                    </h2>
+                                    
+                                    <div className="grid md:grid-cols-3 gap-4 mb-4">
+                                        <div className="bg-white/10 rounded-lg p-4">
+                                            <h3 className="font-semibold mb-3">📥 Load Quote</h3>
+                                            <div className="flex gap-2 mb-2">
+                                                <input 
                                                     type="text"
-                                                    placeholder="Search by company name or quote code..."
-                                                    value={searchTerm}
-                                                    onChange={(e) => {
-                                                        setSearchTerm(e.target.value);
-                                                        searchQuotes(e.target.value);
-                                                    }}
-                                                    className="flex-1 p-2 border border-gray-300 rounded-lg"
+                                                    placeholder="Enter code"
+                                                    value={templateCode}
+                                                    onChange={(e) => setTemplateCode(e.target.value)}
+                                                    className="flex-1 p-2 text-gray-900 rounded"
+                                                    disabled={loading}
                                                 />
                                                 <button
-                                                    onClick={loadRecentQuotes}
-                                                    disabled={quotesLoading}
-                                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                                                    onClick={loadQuote}
+                                                    disabled={loading}
+                                                    className="px-4 py-2 bg-white text-purple-600 font-semibold rounded hover:bg-gray-50 disabled:opacity-50"
                                                 >
-                                                    {quotesLoading ? '🔄' : '🔄 Refresh'}
+                                                    {loading ? '🔄' : '📥 LOAD'}
                                                 </button>
                                             </div>
                                         </div>
                                         
-                                        <div className="overflow-y-auto max-h-96 p-6">
-                                            {quotesLoading ? (
-                                                <div className="text-center py-8">
-                                                    <div className="text-gray-500">🔄 Loading quotes...</div>
-                                                </div>
-                                            ) : recentQuotes.length === 0 ? (
-                                                <div className="text-center py-8">
-                                                    <div className="text-gray-500">No quotes found</div>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-3">
-                                                    {recentQuotes.map((quote, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
-                                                            onClick={() => loadQuoteFromRecent(quote.code)}
-                                                        >
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center gap-3 mb-2">
-                                                                        <span className="font-mono font-bold text-purple-600">
-                                                                            {quote.code}
-                                                                        </span>
-                                                                        <span className="font-semibold text-gray-900">
-                                                                            {quote.data.prospectName || 'Unknown Company'}
-                                                                        </span>
-                                                                    </div>
-                                                                    <div className="text-sm text-gray-600 space-y-1">
-                                                                        <div className="flex gap-4">
-                                                                            {quote.data.license && (
-                                                                                <span>License: {quote.data.license}</span>
-                                                                            )}
-                                                                            {quote.data.biWorkspaces && (
-                                                                                <span>BI: {quote.data.biWorkspaces}</span>
-                                                                            )}
-                                                                            {quote.data.aiWorkspaces && (
-                                                                                <span>AI: {quote.data.aiWorkspaces}</span>
-                                                                            )}
-                                                                        </div>
-                                                                        <div>
-                                                                            Created: {new Date(quote.created_at).toLocaleDateString()} at {new Date(quote.created_at).toLocaleTimeString()}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="text-right">
-                                                                    <div className="text-lg font-bold text-green-600">
-                                                                        ${calculateQuoteTotal(quote.data).toLocaleString()}
-                                                                    </div>
-                                                                    <div className="text-sm text-gray-500">
-                                                                        Annual Value
-                                                                    </div>
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            loadQuoteFromRecent(quote.code);
-                                                                        }}
-                                                                        className="mt-2 px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200"
-                                                                    >
-                                                                        Load Quote
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                        <div className="bg-white/10 rounded-lg p-4">
+                                            <h3 className="font-semibold mb-3">☁️ Save Quote</h3>
+                                            <button
+                                                onClick={handleSaveClick}
+                                                disabled={loading || !formData.prospectName}
+                                                className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 disabled:opacity-50 mb-2"
+                                            >
+                                                {loading ? '🔄 Saving...' : '☁️ SAVE'}
+                                            </button>
+                                            {formData.prospectName && (
+                                                <p className="text-white/80 text-sm">Code: <strong>{generateCode()}</strong></p>
                                             )}
                                         </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Confirmation Modal */}
-                            {showConfirmModal && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                    <div className="bg-white rounded-xl p-6 max-w-md mx-4 shadow-2xl">
-                                        <div className="text-center">
-                                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
-                                                <Database className="h-6 w-6 text-purple-600" />
-                                            </div>
-                                            <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                                Save Quote Confirmation
-                                            </h3>
-                                            <p className="text-sm text-gray-500 mb-6">
-                                                Are you sure you want to save this quote for <strong>{formData.prospectName}</strong>?
-                                                <br />
-                                                Quote code will be: <strong>{generateCode()}</strong>
-                                            </p>
-                                            <div className="flex gap-3">
-                                                <button
-                                                    onClick={() => setShowConfirmModal(false)}
-                                                    className="flex-1 bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200"
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    onClick={saveQuote}
-                                                    disabled={loading}
-                                                    className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50"
-                                                >
-                                                    {loading ? 'Saving...' : 'Yes, Save'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Success Modal */}
-                            {showSuccessModal && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                    <div className="bg-white rounded-xl p-6 max-w-md mx-4 shadow-2xl">
-                                        <div className="text-center">
-                                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                                                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </div>
-                                            <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                                🎉 Quote Saved Successfully!
-                                            </h3>
-                                            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                                                <p className="text-sm text-gray-600 mb-2">Quote Code:</p>
-                                                <p className="text-xl font-bold text-purple-600 mb-3">{savedQuoteCode}</p>
-                                                <p className="text-sm text-gray-500 mb-3">
-                                                    Company: {formData.prospectName}<br />
-                                                    Total: ${calculateTotal().toLocaleString()}<br />
-                                                    Saved: {new Date().toLocaleString()}
-                                                </p>
-                                            </div>
-                                            <div className="flex gap-3 mb-4">
-                                                <button
-                                                    onClick={() => copyToClipboard(savedQuoteCode)}
-                                                    className="flex-1 bg-purple-100 text-purple-700 px-4 py-2 rounded-lg font-medium hover:bg-purple-200 flex items-center justify-center gap-2"
-                                                >
-                                                    📋 Copy Code
-                                                </button>
-                                                <button
-                                                    onClick={() => copyToClipboard(`Quote ${savedQuoteCode}: ${formData.prospectName} - ${calculateTotal().toLocaleString()}`)}
-                                                    className="flex-1 bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-blue-200 flex items-center justify-center gap-2"
-                                                >
-                                                    📄 Copy Summary
-                                                </button>
-                                            </div>
+                                        
+                                        <div className="bg-white/10 rounded-lg p-4">
+                                            <h3 className="font-semibold mb-3">📋 Recent Quotes</h3>
                                             <button
-                                                onClick={() => setShowSuccessModal(false)}
-                                                className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200"
+                                                onClick={() => {
+                                                    setShowRecentQuotes(true);
+                                                    loadRecentQuotes();
+                                                }}
+                                                className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50"
                                             >
-                                                Close
+                                                📋 VIEW RECENT
                                             </button>
                                         </div>
                                     </div>
+
+                                    {message && (
+                                        <div className="bg-white/20 rounded-lg p-3">
+                                            <p className="text-white font-medium">{message}</p>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                    </div>
-                );
-            }
 
-            const root = createRoot(document.getElementById('root'));
-            root.render(<GoodDataCalculator />);
-        </script>
-    </div>
-
-    <!-- Security Logic -->
-    <script>
-        // Session management
-        function getSession() {
-            try {
-                const session = localStorage.getItem('gooddata_session');
-                if (!session) return null;
-                
-                const sessionData = JSON.parse(session);
-                const now = Date.now();
-                
-                // Check if session expired
-                if (now - sessionData.timestamp > SECURITY_CONFIG.sessionTimeout) {
-                    localStorage.removeItem('gooddata_session');
-                    return null;
-                }
-                
-                return sessionData;
-            } catch (e) {
-                return null;
-            }
-        }
-        
-        function setSession(userData) {
-            const sessionData = {
-                timestamp: Date.now(),
-                user: userData
-            };
-            try {
-                localStorage.setItem('gooddata_session', JSON.stringify(sessionData));
-            } catch (e) {
-                console.warn('Session storage failed');
-            }
-        }
-        
-        // Password validation
-        function validatePassword() {
-            const password = document.getElementById('passwordInput').value;
-            const errorDiv = document.getElementById('passwordError');
-            
-            if (password !== SECURITY_CONFIG.password) {
-                errorDiv.textContent = 'Invalid password. Access denied.';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-            
-            errorDiv.classList.add('hidden');
-            document.getElementById('passwordStep').classList.add('hidden');
-            document.getElementById('emailStep').classList.remove('hidden');
-        }
-        
-        // Email validation
-        function validateEmail() {
-            const email = document.getElementById('emailInput').value;
-            const errorDiv = document.getElementById('emailError');
-            
-            if (!email.trim()) {
-                errorDiv.textContent = 'Please enter your email address.';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-            
-            const domain = email.split('@')[1]?.toLowerCase();
-            const isValidDomain = SECURITY_CONFIG.allowedDomains.some(d => d.toLowerCase() === domain);
-            
-            if (!isValidDomain) {
-                errorDiv.textContent = 'Please use your company email address.';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-            
-            // Success - grant access
-            setSession({ email });
-            grantAccess();
-        }
-        
-        // Grant access to calculator
-        function grantAccess() {
-            document.getElementById('securityOverlay').classList.add('hidden');
-            document.getElementById('calculatorContent').classList.add('authenticated');
-            
-            if (SECURITY_CONFIG.showWatermark) {
-                document.getElementById('watermark').classList.remove('hidden');
-            }
-        }
-        
-        // Enter key handling
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const passwordStep = document.getElementById('passwordStep');
-                const emailStep = document.getElementById('emailStep');
-                
-                if (!passwordStep.classList.contains('hidden')) {
-                    validatePassword();
-                } else if (!emailStep.classList.contains('hidden')) {
-                    validateEmail();
-                }
-            }
-        });
-        
-        // Check if already authenticated on page load
-        window.addEventListener('load', function() {
-            const session = getSession();
-            if (session) {
-                grantAccess();
-            }
-        });
-        
-        // Auto-focus first input
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('passwordInput').focus();
-        });
-    </script>
-</body>
-</html>
+                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <Building className="w-6 h-6 text-purple-900" />
+                                        <h2 className="text-xl font-semibold text-gray-800">Customer Profile</h2>
+                                    </div>
+                                    
+                                    <div className="space-y-6">
+                                        {/* Side by side layout for Annual Revenue and Number of Employees */}
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Annual Revenue (USD)</label>
+                                                <select 
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                    value={formData.annualRevenue}
+                                                    onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
+                                                >
+                                                    <option value="">Select Range</option>
+                                                    <option value="< 10M">&lt; $10M</option>
+                                                    <option value="10M - 50M">$10M - $50M</option>
+                                                    <option value="50M - 100M">$50M - $100M</option>
+                                                    <option value="100M - 500M">$100M - $500M</option>
+                                                    <option value="500M+">$500M+</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+                                                <select 
+                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                    value={formData.numberOfEmployees}
+                                                    onChange={(e) => handleInputChange('numberOfEmployees', e.target.value)}
+                                                >
+                                                    <option value="">Select Range</option>
+                                                    <option value="<100">&lt;100</option>
+                                                    <option value="101-1,000">101-1,000</option>
+                                                    <option value="1,001-2,500">1,001-2,500</option>
+                                                    <option value="2,500+">2,500+</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">What are they looking to achieve with GoodData?</label>
+                                            <textarea 
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"
+                                                rows="4"
+                                                placeholder="Describe their goals and objectives..."
+                                                value={formData.objectives}
+                                                onChange={(e) => handleInputChange('objectives', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
