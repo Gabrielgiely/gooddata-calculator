@@ -397,7 +397,8 @@
                     dataCenterRegions: false,
                     usageAnalytics: false,
                     auditLog: false,
-                    hipaaCompliance: false
+                    hipaaCompliance: false,
+                    privateLink: false
                 });
 
                 const [pricing, setPricing] = useState({
@@ -410,11 +411,12 @@
                     analytics: 37500,
                     endToEnd: 100000,
                     additionalEnvironments: 12000,
-                    samlOidc: 3000,
-                    dataCenterRegions: 5000,
-                    usageAnalytics: 2500,
-                    auditLog: 3000,
-                    hipaaCompliance: 8000,
+                    samlOidc: 6000,
+                    dataCenterRegions: 15000,
+                    usageAnalytics: 6000,
+                    auditLog: 6000,
+                    hipaaCompliance: 100000,
+                    privateLink: 2400,
                     llmPackages: {
                         'Customer': { 'Small': 100, 'Medium': 430, 'Large': 750 },
                         'GoodData': { 'Small': 200, 'Medium': 750, 'Large': 900 }
@@ -477,6 +479,7 @@
                     if (formData.usageAnalytics) total += pricing.usageAnalytics;
                     if (formData.auditLog) total += pricing.auditLog;
                     if (formData.hipaaCompliance) total += pricing.hipaaCompliance;
+                    if (formData.privateLink) total += pricing.privateLink;
                     
                     return total;
                 };
@@ -636,6 +639,7 @@
                     if (quoteData.usageAnalytics) total += pricing.usageAnalytics;
                     if (quoteData.auditLog) total += pricing.auditLog;
                     if (quoteData.hipaaCompliance) total += pricing.hipaaCompliance;
+                    if (quoteData.privateLink) total += pricing.privateLink;
                     
                     return total;
                 };
@@ -1108,6 +1112,16 @@
                                                 />
                                                 <span className="ml-2 text-gray-700">HIPAA Compliance - ${pricing.hipaaCompliance.toLocaleString()}</span>
                                             </label>
+                                            
+                                            <label className="flex items-center">
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={formData.privateLink}
+                                                    onChange={(e) => handleInputChange('privateLink', e.target.checked)}
+                                                    className="w-4 h-4 text-purple-600 rounded"
+                                                />
+                                                <span className="ml-2 text-gray-700">Private Link - ${pricing.privateLink.toLocaleString()}</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -1276,6 +1290,12 @@
                                                 <div className="flex justify-between">
                                                     <span>HIPAA Compliance:</span>
                                                     <span>${pricing.hipaaCompliance.toLocaleString()}</span>
+                                                </div>
+                                            )}
+                                            {formData.privateLink && (
+                                                <div className="flex justify-between">
+                                                    <span>Private Link:</span>
+                                                    <span>${pricing.privateLink.toLocaleString()}</span>
                                                 </div>
                                             )}
                                         </div>
