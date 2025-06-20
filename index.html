@@ -1218,6 +1218,18 @@
                                     )}
                                 </div>
 
+                                {/* Comments Section */}
+                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Comments</h2>
+                                    <textarea 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"
+                                        rows="4"
+                                        placeholder="Add any additional comments or notes about this quote..."
+                                        value={formData.objectives}
+                                        onChange={(e) => handleInputChange('objectives', e.target.value)}
+                                    />
+                                </div>
+
                                 {/* Pricing Summary */}
                                 <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6">
                                     <div className="flex items-center gap-3 mb-6">
@@ -1336,13 +1348,6 @@
                                             </button>
                                         </div>
                                     </div>
-                                    
-                                    {formData.objectives && (
-                                        <div className="mt-6 bg-white/10 rounded-lg p-4">
-                                            <h4 className="font-semibold mb-2">Customer Objectives:</h4>
-                                            <p className="text-sm opacity-90">{formData.objectives}</p>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 
