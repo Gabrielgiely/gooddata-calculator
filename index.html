@@ -1,6 +1,5 @@
 </div>
 
-                            {/* All the original modals - Recent Quotes, Confirmation, Success */}
                             {showRecentQuotes && (
                                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                     <div className="bg-white rounded-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden shadow-2xl">
@@ -253,20 +252,31 @@
         
         // Email validation
         function validateEmail() {
-            const email = document.getElementById('emailInput').value;
+            const email = document.getElementById('emailInput').value.toLowerCase().trim();
             const errorDiv = document.getElementById('emailError');
             
-            if (!email.trim()) {
+            if (!email) {
                 errorDiv.textContent = 'Please enter your email address.';
                 errorDiv.classList.remove('hidden');
                 return;
             }
             
-            const domain = email.split('@')[1]?.toLowerCase();
-            const isValidDomain = SECURITY_CONFIG.allowedDomains.some(d => d.toLowerCase() === domain);
+            // Check if using specific email addresses or domains
+            let isAuthorized = false;
             
-            if (!isValidDomain) {
-                errorDiv.textContent = 'Please use your company email address.';
+            if (SECURITY_CONFIG.allowedEmails && SECURITY_CONFIG.allowedEmails.length > 0) {
+                // Option 1: Check against specific email addresses
+                isAuthorized = SECURITY_CONFIG.allowedEmails.some(allowedEmail => 
+                    allowedEmail.toLowerCase() === email
+                );
+            } else if (SECURITY_CONFIG.allowedDomains && SECURITY_CONFIG.allowedDomains.length > 0) {
+                // Option 2: Check against domains (fallback)
+                const domain = email.split('@')[1];
+                isAuthorized = SECURITY_CONFIG.allowedDomains.some(d => d.toLowerCase() === domain);
+            }
+            
+            if (!isAuthorized) {
+                errorDiv.textContent = 'Your email address is not authorized for access.';
                 errorDiv.classList.remove('hidden');
                 return;
             }
@@ -794,7 +804,15 @@
     <script>
         const SECURITY_CONFIG = {
             password: "GoodData2025!",
-            allowedDomains: ["gooddata.com",],
+            // Option 1: Use allowedEmails for specific email addresses
+            allowedEmails: [
+                "john.doe@gooddata.com",
+                "jane.smith@gooddata.com",
+                "sales@gooddata.com",
+                "admin@gooddata.com"
+            ],
+            // Option 2: Use allowedDomains for any email from these domains (comment out if using allowedEmails)
+            // allowedDomains: ["gooddata.com", "yourcompany.com"],
             sessionTimeout: 4 * 60 * 60 * 1000, // 4 hours
             showWatermark: true
         };
@@ -825,8 +843,8 @@
                 <div class="form-group">
                     <label class="form-label">Company Email</label>
                     <input type="email" id="emailInput" class="form-input" placeholder="your.email@company.com" autofocus>
-                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
-                        Allowed domains: gooddata.com, yourcompany.com
+                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;" id="emailHint">
+                        Only authorized email addresses are allowed
                     </div>
                 </div>
                 
