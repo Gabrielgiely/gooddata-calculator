@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -412,7 +413,6 @@
                     platformFee: 36000,
                     professionalLicense: 24000,
                     enterpriseLicense: 36000,
-                    enterprisePlusLicense: 50000,
                     biWorkspacePrice: 25,
                     aiWorkspacePrice: 10,
                     advisory: 10000,
@@ -468,8 +468,6 @@
                         baseAmount = pricing.professionalLicense;
                     } else if (formData.license === 'Enterprise') {
                         baseAmount = pricing.enterpriseLicense;
-                    } else if (formData.license === 'Enterprise Plus') {
-                        baseAmount = pricing.enterprisePlusLicense;
                     } else {
                         baseAmount = pricing.platformFee;
                     }
@@ -631,8 +629,6 @@
                         baseAmount = pricing.professionalLicense;
                     } else if (quoteData.license === 'Enterprise') {
                         baseAmount = pricing.enterpriseLicense;
-                    } else if (quoteData.license === 'Enterprise Plus') {
-                        baseAmount = pricing.enterprisePlusLicense;
                     } else {
                         baseAmount = pricing.platformFee;
                     }
@@ -1199,17 +1195,6 @@
                                                             className="w-full p-3 border border-gray-300 rounded-lg"
                                                             value={pricing.enterpriseLicense}
                                                             onChange={(e) => updatePricing('enterpriseLicense', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {formData.license === 'Enterprise Plus' && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Enterprise Plus License</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.enterprisePlusLicense}
-                                                            onChange={(e) => updatePricing('enterprisePlusLicense', e.target.value)}
                                                         />
                                                     </div>
                                                 )}
