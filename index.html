@@ -13,7 +13,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: none; /* Hide by default */
+            display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
@@ -104,7 +104,7 @@
         }
         
         .calculator-content {
-            display: block; /* Always show calculator */
+            display: none;
         }
         
         .calculator-content.authenticated {
@@ -157,50 +157,50 @@
         const SECURITY_CONFIG = window.SECURITY_CONFIG;
     </script>
 
-        <!-- Security Overlay (the lock on your door) -->
-        <div id="securityOverlay" class="security-overlay">
-            <div class="security-form">
-                <!-- Step 1: Password -->
-                <div id="passwordStep">
-                    <div class="security-title">🔒 Secure Access</div>
-                    <div class="security-subtitle">This calculator contains confidential pricing information</div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Access Password</label>
-                        <input type="password" id="passwordInput" class="form-input" placeholder="Enter password">
-                    </div>
-                    
-                    <button onclick="validatePassword()" class="form-button">Access Calculator</button>
-                    <div id="passwordError" class="error-message hidden"></div>
+    <!-- Security Overlay (the lock on your door) -->
+    <div id="securityOverlay" class="security-overlay">
+        <div class="security-form">
+            <!-- Step 1: Password -->
+            <div id="passwordStep">
+                <div class="security-title">🔒 Secure Access</div>
+                <div class="security-subtitle">This calculator contains confidential pricing information</div>
+                
+                <div class="form-group">
+                    <label class="form-label">Access Password</label>
+                    <input type="password" id="passwordInput" class="form-input" placeholder="Enter password">
                 </div>
                 
-                <!-- Step 2: Email Verification -->
-                <div id="emailStep" class="hidden">
-                    <div class="security-title">✅ Email Verification</div>
-                    <div class="security-subtitle">Please verify your company email address</div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Company Email</label>
-                        <input type="email" id="emailInput" class="form-input" placeholder="your.email@company.com" autofocus>
-                        <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;" id="emailHint">
-                            Only authorized email addresses are allowed
-                        </div>
+                <button onclick="validatePassword()" class="form-button">Access Calculator</button>
+                <div id="passwordError" class="error-message hidden"></div>
+            </div>
+            
+            <!-- Step 2: Email Verification -->
+            <div id="emailStep" class="hidden">
+                <div class="security-title">✅ Email Verification</div>
+                <div class="security-subtitle">Please verify your company email address</div>
+                
+                <div class="form-group">
+                    <label class="form-label">Company Email</label>
+                    <input type="email" id="emailInput" class="form-input" placeholder="your.email@company.com" autofocus>
+                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;" id="emailHint">
+                        Only authorized email addresses are allowed
                     </div>
-                    
-                    <button onclick="validateEmail()" class="form-button">Continue to Calculator</button>
-                    <div id="emailError" class="error-message hidden"></div>
                 </div>
+                
+                <button onclick="validateEmail()" class="form-button">Continue to Calculator</button>
+                <div id="emailError" class="error-message hidden"></div>
             </div>
         </div>
+    </div>
 
-        <!-- Watermark -->
-        <div id="watermark" class="watermark hidden">
-            🔒 CONFIDENTIAL - GoodData Internal Use Only
-        </div>
+    <!-- Watermark -->
+    <div id="watermark" class="watermark hidden">
+        🔒 CONFIDENTIAL - GoodData Internal Use Only
+    </div>
 
-        <!-- Your Original Calculator (hidden until authenticated) -->
-        <div id="calculatorContent" class="calculator-content">
-            <div id="root"></div>
+    <!-- Your Original Calculator (hidden until authenticated) -->
+    <div id="calculatorContent" class="calculator-content">
+        <div id="root"></div>
 
         <script type="text/babel">
             const { useState } = React;
