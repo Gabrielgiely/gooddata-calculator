@@ -1396,6 +1396,222 @@
                                     </div>
                                 </div>
 
+                                {/* Special Pricing Editor - Right Before Summary */}
+                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <DollarSign className="w-6 h-6 text-green-600" />
+                                            <h2 className="text-xl font-semibold text-gray-800">Special Pricing (Finance Approval)</h2>
+                                        </div>
+                                        <button
+                                            onClick={() => setEditMode(!editMode)}
+                                            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                                editMode 
+                                                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                                                    : 'bg-green-600 text-white hover:bg-green-700'
+                                            }`}
+                                        >
+                                            {editMode ? '✕ Close Special Pricing' : '💰 Apply Special Pricing'}
+                                        </button>
+                                    </div>
+                                    
+                                    {editMode && (
+                                        <div className="space-y-4">
+                                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                                <div className="flex items-center gap-2 text-yellow-800">
+                                                    <span className="text-lg">⚠️</span>
+                                                    <span className="font-medium">Special pricing requires finance team approval</span>
+                                                </div>
+                                            </div>
+
+                                            {/* License Override */}
+                                            {formData.license && (
+                                                <div className="bg-blue-50 rounded-lg p-4">
+                                                    <h3 className="font-semibold text-gray-800 mb-3">{formData.license} License Override</h3>
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="text-sm text-gray-600">Default: ${
+                                                            formData.license === 'Professional' ? '24,000' :
+                                                            formData.license === 'Enterprise' ? '36,000' : '50,000'
+                                                        }</span>
+                                                        <input 
+                                                            type="number"
+                                                            className="flex-1 p-2 border border-gray-300 rounded bg-white"
+                                                            value={
+                                                                formData.license === 'Professional' ? pricing.professionalLicense :
+                                                                formData.license === 'Enterprise' ? pricing.enterpriseLicense : 
+                                                                pricing.enterprisePlusLicense
+                                                            }
+                                                            onChange={(e) => {
+                                                                if (formData.license === 'Professional') {
+                                                                    updatePricing('professionalLicense', e.target.value);
+                                                                } else if (formData.license === 'Enterprise') {
+                                                                    updatePricing('enterpriseLicense', e.target.value);
+                                                                } else {
+                                                                    updatePricing('enterprisePlusLicense', e.target.value);
+                                                                }
+                                                            }}
+                                                            placeholder="Special price"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Workspace Override */}
+                                            {(parseInt(formData.biWorkspaces) > 0 || parseInt(formData.aiWorkspaces) > 0) && (
+                                                <div className="bg-purple-50 rounded-lg p-4">
+                                                    <h3 className="font-semibold text-gray-800 mb-3">Workspace Pricing Override</h3>
+                                                    <div className="space-y-3">
+                                                        {parseInt(formData.biWorkspaces) > 0 && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">Core+BI (Default: $25/mo)</span>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="flex-1 p-2 border border-gray-300 rounded bg-white"
+                                                                    value={pricing.biWorkspacePrice}
+                                                                    onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
+                                                                    placeholder="Special monthly price"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        {parseInt(formData.aiWorkspaces) > 0 && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">AI Modules (Default: $10/mo)</span>
+                                                                <input 
+                                                                    type="number"
+                                                                    className="flex-1 p-2 border border-gray-300 rounded bg-white"
+                                                                    value={pricing.aiWorkspacePrice}
+                                                                    onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
+                                                                    placeholder="Special monthly price"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* LLM Package Override */}
+                                            {formData.llmProvider && formData.package && (
+                                                <div className="bg-indigo-50 rounded-lg p-4">
+                                                    <h3 className="font-semibold text-gray-800 mb-3">LLM Package Override</h3>
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="text-sm text-gray-600">{formData.llmProvider} {formData.package} (Default: ${
+                                                            formData.llmProvider === 'Customer' 
+                                                                ? (formData.package === 'Small' ? '100' : formData.package === 'Medium' ? '430' : '750')
+                                                                : (formData.package === 'Small' ? '200' : formData.package === 'Medium' ? '875' : '1,500')
+                                                        }/mo)</span>
+                                                        <input 
+                                                            type="number"
+                                                            className="flex-1 p-2 border border-gray-300 rounded bg-white"
+                                                            value={pricing.llmPackages[formData.llmProvider]?.[formData.package] || 0}
+                                                            onChange={(e) => updateLLMPricing(formData.llmProvider, formData.package, e.target.value)}
+                                                            placeholder="Special monthly price"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Professional Services Override */}
+                                            {formData.professionalServices && (
+                                                <div className="bg-green-50 rounded-lg p-4">
+                                                    <h3 className="font-semibold text-gray-800 mb-3">Professional Services Override</h3>
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="text-sm text-gray-600">{formData.professionalServices} (Default: ${
+                                                            formData.professionalServices === 'Advisory' ? '10,000' :
+                                                            formData.professionalServices === 'Analytics' ? '37,500' : '100,000'
+                                                        })</span>
+                                                        <input 
+                                                            type="number"
+                                                            className="flex-1 p-2 border border-gray-300 rounded bg-white"
+                                                            value={
+                                                                formData.professionalServices === 'Advisory' ? pricing.advisory :
+                                                                formData.professionalServices === 'Analytics' ? pricing.analytics : 
+                                                                pricing.endToEnd
+                                                            }
+                                                            onChange={(e) => {
+                                                                if (formData.professionalServices === 'Advisory') {
+                                                                    updatePricing('advisory', e.target.value);
+                                                                } else if (formData.professionalServices === 'Analytics') {
+                                                                    updatePricing('analytics', e.target.value);
+                                                                } else {
+                                                                    updatePricing('endToEnd', e.target.value);
+                                                                }
+                                                            }}
+                                                            placeholder="Special price"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Add-ons Override */}
+                                            {(formData.additionalEnvironments || formData.samlOidc || formData.dataCenterRegions || 
+                                              formData.usageAnalytics || formData.auditLog || formData.hipaaCompliance || 
+                                              formData.privateLink || formData.brandedDocumentation) && (
+                                                <div className="bg-orange-50 rounded-lg p-4">
+                                                    <h3 className="font-semibold text-gray-800 mb-3">Add-ons Override</h3>
+                                                    <div className="space-y-2">
+                                                        {formData.additionalEnvironments && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">Additional Environments (Default: $12,000)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.additionalEnvironments} onChange={(e) => updatePricing('additionalEnvironments', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                        {formData.samlOidc && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">SAML/OIDC (Default: $6,000)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.samlOidc} onChange={(e) => updatePricing('samlOidc', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                        {formData.dataCenterRegions && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">Data Center Regions (Default: $15,000)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.dataCenterRegions} onChange={(e) => updatePricing('dataCenterRegions', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                        {formData.usageAnalytics && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">Usage Analytics (Default: $6,000)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.usageAnalytics} onChange={(e) => updatePricing('usageAnalytics', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                        {formData.auditLog && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">Audit Log (Default: $6,000)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.auditLog} onChange={(e) => updatePricing('auditLog', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                        {formData.hipaaCompliance && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">HIPAA Compliance (Default: $100,000)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.hipaaCompliance} onChange={(e) => updatePricing('hipaaCompliance', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                        {formData.privateLink && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">Private Link (Default: $2,400)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.privateLink} onChange={(e) => updatePricing('privateLink', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                        {formData.brandedDocumentation && (
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="text-sm text-gray-600 w-48">Branded Documentation (Default: $6,000)</span>
+                                                                <input type="number" className="flex-1 p-2 border border-gray-300 rounded bg-white" 
+                                                                       value={pricing.brandedDocumentation} onChange={(e) => updatePricing('brandedDocumentation', e.target.value)} />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
                                 {/* Pricing Summary */}
                                 <div className="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl text-white p-6">
                                     <div className="flex items-center gap-3 mb-6">
