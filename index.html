@@ -1396,12 +1396,12 @@
                                     </div>
                                 </div>
 
-                                {/* Special Pricing Editor - Right Before Summary */}
+                                {/* Pricing Editor - Right Before Summary */}
                                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-3">
                                             <DollarSign className="w-6 h-6 text-green-600" />
-                                            <h2 className="text-xl font-semibold text-gray-800">Special Pricing (Finance Approval)</h2>
+                                            <h2 className="text-xl font-semibold text-gray-800">Pricing Editor</h2>
                                         </div>
                                         <button
                                             onClick={() => setEditMode(!editMode)}
@@ -1411,18 +1411,12 @@
                                                     : 'bg-green-600 text-white hover:bg-green-700'
                                             }`}
                                         >
-                                            {editMode ? '✕ Close Special Pricing' : '💰 Apply Special Pricing'}
+                                            {editMode ? '✕ Close Editor' : 'Edit Pricing'}
                                         </button>
                                     </div>
                                     
                                     {editMode && (
                                         <div className="space-y-4">
-                                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                                                <div className="flex items-center gap-2 text-yellow-800">
-                                                    <span className="text-lg">⚠️</span>
-                                                    <span className="font-medium">Special pricing requires finance team approval</span>
-                                                </div>
-                                            </div>
 
                                             {/* License Override */}
                                             {formData.license && (
