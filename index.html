@@ -425,7 +425,7 @@
                     brandedDocumentation: 6000,
                     llmPackages: {
                         'Customer': { 'Small': 100, 'Medium': 430, 'Large': 750 },
-                        'GoodData': { 'Small': 200, 'Medium': 750, 'Large': 900 }
+                        'GoodData': { 'Small': 200, 'Medium': 875, 'Large': 1500 }
                     }
                 });
 
@@ -451,6 +451,10 @@
                         const newData = { ...prev, [field]: value };
                         if (field === 'totalWorkspaces') {
                             newData.biWorkspaces = value;
+                        }
+                        // Auto-select Enterprise Plus for 1001+ employees
+                        if (field === 'numberOfEmployees' && (value === '1,001-2,500' || value === '2,500+')) {
+                            newData.license = 'Enterprise Plus';
                         }
                         return newData;
                     });
@@ -957,6 +961,7 @@
                                                 <option value="">Select License</option>
                                                 <option value="Professional">Professional - $24,000/year</option>
                                                 <option value="Enterprise">Enterprise - $36,000/year</option>
+                                                <option value="Enterprise Plus">Enterprise Plus - $50,000/year</option>
                                             </select>
                                         </div>
 
