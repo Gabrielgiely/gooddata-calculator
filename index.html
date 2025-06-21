@@ -536,9 +536,8 @@
                         
                         const result = await cloudStorage.save(code, dataToSave);
                         if (result.success) {
-                            setSavedQuoteCode(code);
-                            setShowSuccessModal(true);
-                            setMessage('');
+                            setMessage(`✅ Quote saved! Code: ${code}`);
+                            alert(`Quote Saved Successfully!\n\nCode: ${code}\nCompany: ${formData.prospectName}\nTotal: ${calculateTotal().toLocaleString()}`);
                         } else {
                             setMessage(`❌ Save failed: ${result.error}`);
                             setTimeout(() => setMessage(''), 5000);
