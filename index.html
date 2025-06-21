@@ -701,6 +701,18 @@
                     setLoading(false);
                 };
 
+                // Simple DOM-based close function as backup
+                const forceCloseModal = () => {
+                    console.log('Force closing modal via DOM manipulation');
+                    const modal = document.querySelector('[data-modal="success"]');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        console.log('Modal hidden via DOM');
+                    }
+                    setShowSuccessModal(false);
+                    console.log('State updated to false');
+                };
+
                 const handleCloseSuccessModal = () => {
                     console.log('Attempting to close modal, current state:', showSuccessModal);
                     setShowSuccessModal(false);
@@ -712,6 +724,11 @@
                         setShowSuccessModal(false);
                         console.log('Delayed close attempt');
                     }, 10);
+                    
+                    // Force close as backup
+                    setTimeout(() => {
+                        forceCloseModal();
+                    }, 100);
                 };
 
                 // Add escape key handler
