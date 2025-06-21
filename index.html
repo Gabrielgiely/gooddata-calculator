@@ -990,15 +990,20 @@
                                     </div>
                                     
                                     {parseInt(formData.aiWorkspaces) > 0 && (
-                                        <div className="mt-6">
+                                        <div className="mt-6 p-4 border-2 border-dashed border-orange-300 bg-orange-50 rounded-lg">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <span className="text-orange-600 font-medium">⚠️ LLM Configuration Required</span>
+                                            </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider *</label>
                                                 <select 
-                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 bg-white ${
+                                                        !formData.llmProvider ? 'border-orange-400 bg-orange-50' : 'border-gray-300'
+                                                    }`}
                                                     value={formData.llmProvider}
                                                     onChange={(e) => handleInputChange('llmProvider', e.target.value)}
                                                 >
-                                                    <option value="">Select Provider</option>
+                                                    <option value="">⚠️ Select Provider (Required)</option>
                                                     <option value="Customer">Customer</option>
                                                     <option value="GoodData">GoodData</option>
                                                 </select>
@@ -1006,13 +1011,15 @@
                                             
                                             {formData.llmProvider && (
                                                 <div className="mt-4">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Package *</label>
                                                     <select 
-                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                        className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 bg-white ${
+                                                            !formData.package ? 'border-orange-400 bg-orange-50' : 'border-gray-300'
+                                                        }`}
                                                         value={formData.package}
                                                         onChange={(e) => handleInputChange('package', e.target.value)}
                                                     >
-                                                        <option value="">Select Package</option>
+                                                        <option value="">⚠️ Select Package (Required)</option>
                                                         {formData.llmProvider === 'Customer' && (
                                                             <>
                                                                 <option value="Small">Small - ${pricing.llmPackages.Customer.Small}/month</option>
@@ -1028,6 +1035,11 @@
                                                             </>
                                                         )}
                                                     </select>
+                                                </div>
+                                            )}
+                                            {(!formData.llmProvider || !formData.package) && (
+                                                <div className="mt-3 text-sm text-orange-600 font-medium">
+                                                    💡 AI Workspaces require LLM configuration to calculate pricing
                                                 </div>
                                             )}
                                         </div>
