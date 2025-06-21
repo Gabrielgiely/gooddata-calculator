@@ -373,6 +373,7 @@
                 const [editMode, setEditMode] = useState(false);
                 const [showConfirmModal, setShowConfirmModal] = useState(false);
                 const [showSuccessModal, setShowSuccessModal] = useState(false);
+                const [forceRender, setForceRender] = useState(0);
                 const [showRecentQuotes, setShowRecentQuotes] = useState(false);
                 const [recentQuotes, setRecentQuotes] = useState([]);
                 const [quotesLoading, setQuotesLoading] = useState(false);
@@ -703,7 +704,14 @@
                 const handleCloseSuccessModal = () => {
                     console.log('Attempting to close modal, current state:', showSuccessModal);
                     setShowSuccessModal(false);
+                    setForceRender(prev => prev + 1); // Force re-render
                     console.log('Modal close function called');
+                    
+                    // Try multiple ways to ensure it closes
+                    setTimeout(() => {
+                        setShowSuccessModal(false);
+                        console.log('Delayed close attempt');
+                    }, 10);
                 };
 
                 // Add escape key handler
