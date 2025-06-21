@@ -373,7 +373,6 @@
                 const [editMode, setEditMode] = useState(false);
                 const [showConfirmModal, setShowConfirmModal] = useState(false);
                 const [showSuccessModal, setShowSuccessModal] = useState(false);
-                const [forceRender, setForceRender] = useState(0);
                 const [showRecentQuotes, setShowRecentQuotes] = useState(false);
                 const [recentQuotes, setRecentQuotes] = useState([]);
                 const [quotesLoading, setQuotesLoading] = useState(false);
@@ -536,8 +535,9 @@
                         
                         const result = await cloudStorage.save(code, dataToSave);
                         if (result.success) {
-                            setMessage(`✅ Quote saved! Code: ${code}`);
-                            alert(`Quote Saved Successfully!\n\nCode: ${code}\nCompany: ${formData.prospectName}\nTotal: ${calculateTotal().toLocaleString()}`);
+                            setSavedQuoteCode(code);
+                            setShowSuccessModal(true);
+                            setMessage('');
                         } else {
                             setMessage(`❌ Save failed: ${result.error}`);
                             setTimeout(() => setMessage(''), 5000);
@@ -699,48 +699,6 @@
                     }
                     setLoading(false);
                 };
-
-                // Simple DOM-based close function as backup
-                const forceCloseModal = () => {
-                    console.log('Force closing modal via DOM manipulation');
-                    const modal = document.querySelector('[data-modal="success"]');
-                    if (modal) {
-                        modal.style.display = 'none';
-                        console.log('Modal hidden via DOM');
-                    }
-                    setShowSuccessModal(false);
-                    console.log('State updated to false');
-                };
-
-                const handleCloseSuccessModal = () => {
-                    console.log('Attempting to close modal, current state:', showSuccessModal);
-                    setShowSuccessModal(false);
-                    setForceRender(prev => prev + 1); // Force re-render
-                    console.log('Modal close function called');
-                    
-                    // Try multiple ways to ensure it closes
-                    setTimeout(() => {
-                        setShowSuccessModal(false);
-                        console.log('Delayed close attempt');
-                    }, 10);
-                    
-                    // Force close as backup
-                    setTimeout(() => {
-                        forceCloseModal();
-                    }, 100);
-                };
-
-                // Add escape key handler
-                React.useEffect(() => {
-                    const handleEscape = (event) => {
-                        if (event.key === 'Escape' && showSuccessModal) {
-                            handleCloseSuccessModal();
-                        }
-                    };
-                    
-                    document.addEventListener('keydown', handleEscape);
-                    return () => document.removeEventListener('keydown', handleEscape);
-                }, [showSuccessModal]);
 
                 return (
                     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-violet-50 p-4">
