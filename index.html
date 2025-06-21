@@ -371,13 +371,12 @@
                 const [message, setMessage] = useState('');
                 const [loading, setLoading] = useState(false);
                 const [editMode, setEditMode] = useState(false);
-                const [showConfirmModal, setShowConfirmModal] = useState(false);
-                const [showSuccessModal, setShowSuccessModal] = useState(false);
                 const [showRecentQuotes, setShowRecentQuotes] = useState(false);
                 const [recentQuotes, setRecentQuotes] = useState([]);
                 const [quotesLoading, setQuotesLoading] = useState(false);
                 const [searchTerm, setSearchTerm] = useState('');
                 const [savedQuoteCode, setSavedQuoteCode] = useState('');
+                const [showSuccessMessage, setShowSuccessMessage] = useState(false);
                 
                 const [formData, setFormData] = useState({
                     prospectName: '',
@@ -536,8 +535,12 @@
                         const result = await cloudStorage.save(code, dataToSave);
                         if (result.success) {
                             setSavedQuoteCode(code);
-                            setShowSuccessModal(true);
+                            setShowSuccessMessage(true);
                             setMessage('');
+                            // Auto-hide success message after 5 seconds
+                            setTimeout(() => {
+                                setShowSuccessMessage(false);
+                            }, 5000);
                         } else {
                             setMessage(`❌ Save failed: ${result.error}`);
                             setTimeout(() => setMessage(''), 5000);
@@ -547,23 +550,13 @@
                         setTimeout(() => setMessage(''), 3000);
                     }
                     setLoading(false);
-                    setShowConfirmModal(false);
-                };
-
-                const handleSaveClick = () => {
-                    if (!formData.prospectName) {
-                        setMessage('❌ Please enter a prospect name');
-                        setTimeout(() => setMessage(''), 3000);
-                        return;
-                    }
-                    setShowConfirmModal(true);
                 };
 
                 const copyToClipboard = async (text) => {
                     try {
                         await navigator.clipboard.writeText(text);
-                        setMessage('✅ Quote code copied to clipboard!');
-                        setTimeout(() => setMessage(''), 3000);
+                        setMessage('✅ Copied to clipboard!');
+                        setTimeout(() => setMessage(''), 2000);
                     } catch (err) {
                         setMessage('❌ Failed to copy to clipboard');
                         setTimeout(() => setMessage(''), 3000);
@@ -781,7 +774,7 @@
                                         <div className="bg-white/10 rounded-lg p-4">
                                             <h3 className="font-semibold mb-3">Save Quote</h3>
                                             <button
-                                                onClick={handleSaveClick}
+                                                onClick={saveQuote}
                                                 disabled={loading || !formData.prospectName}
                                                 className="w-full bg-white text-purple-600 font-semibold py-2 px-4 rounded hover:bg-gray-50 disabled:opacity-50 mb-2"
                                             >
@@ -809,6 +802,39 @@
                                     {message && (
                                         <div className="bg-white/20 rounded-lg p-3">
                                             <p className="text-white font-medium">{message}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Success Message */}
+                                    {showSuccessMessage && (
+                                        <div className="bg-green-100 border border-green-300 rounded-lg p-4 mt-4">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="text-green-600 text-2xl">🎉</div>
+                                                    <div>
+                                                        <h4 className="font-semibold text-green-800">Quote Saved Successfully!</h4>
+                                                        <p className="text-green-700 text-sm">
+                                                            Code: <span className="font-mono font-bold">{savedQuoteCode}</span> | 
+                                                            Company: {formData.prospectName} | 
+                                                            Total: ${calculateTotal().toLocaleString()}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => copyToClipboard(savedQuoteCode)}
+                                                        className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                                                    >
+                                                        📋 Copy Code
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setShowSuccessMessage(false)}
+                                                        className="text-green-600 hover:text-green-800 font-bold text-lg px-2"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -1589,7 +1615,7 @@
                                                 Annual Contract Value
                                             </div>
                                             <button
-                                                onClick={handleSaveClick}
+                                                onClick={saveQuote}
                                                 disabled={loading || !formData.prospectName}
                                                 className="w-full bg-white text-purple-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
                                             >
@@ -1688,50 +1714,6 @@
                                                     ))}
                                                 </div>
                                             )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {showConfirmModal && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                    <div className="bg-white rounded-xl p-6 max-w-md mx-4 shadow-2xl">
-                                        <div className="text-center">
-                                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                                                <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </div>
-                                            <h3 className="text-lg font-medium text-gray-900 mb-2">🎉 Quote Saved Successfully!</h3>
-                                            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                                                <p className="text-sm text-gray-600 mb-2">Quote Code:</p>
-                                                <p className="text-xl font-bold text-purple-600 mb-3">{savedQuoteCode}</p>
-                                                <p className="text-sm text-gray-500 mb-3">
-                                                    Company: {formData.prospectName}<br />
-                                                    Total: ${calculateTotal().toLocaleString()}<br />
-                                                    Saved: {new Date().toLocaleString()}
-                                                </p>
-                                            </div>
-                                            <div className="flex gap-3 mb-4">
-                                                <button
-                                                    onClick={() => copyToClipboard(savedQuoteCode)}
-                                                    className="flex-1 bg-purple-100 text-purple-700 px-4 py-2 rounded-lg font-medium hover:bg-purple-200"
-                                                >
-                                                    📋 Copy Code
-                                                </button>
-                                                <button
-                                                    onClick={() => copyToClipboard(`Quote ${savedQuoteCode}: ${formData.prospectName} - ${calculateTotal().toLocaleString()}`)}
-                                                    className="flex-1 bg-blue-100 text-blue-700 px-4 py-2 rounded-lg font-medium hover:bg-blue-200"
-                                                >
-                                                    📄 Copy Summary
-                                                </button>
-                                            </div>
-                                            <button
-                                                onClick={() => setShowSuccessModal(false)}
-                                                className="w-full bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200"
-                                            >
-                                                Close
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -1871,36 +1853,4 @@
         });
     </script>
 </body>
-</html> items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
-                                                <Database className="h-6 w-6 text-purple-600" />
-                                            </div>
-                                            <h3 className="text-lg font-medium text-gray-900 mb-2">Save Quote Confirmation</h3>
-                                            <p className="text-sm text-gray-500 mb-6">
-                                                Are you sure you want to save this quote for <strong>{formData.prospectName}</strong>?
-                                                <br />Quote code will be: <strong>{generateCode()}</strong>
-                                            </p>
-                                            <div className="flex gap-3">
-                                                <button
-                                                    onClick={() => setShowConfirmModal(false)}
-                                                    className="flex-1 bg-gray-100 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-200"
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    onClick={saveQuote}
-                                                    disabled={loading}
-                                                    className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50"
-                                                >
-                                                    {loading ? 'Saving...' : 'Yes, Save'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {showSuccessModal && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                    <div className="bg-white rounded-xl p-6 max-w-md mx-4 shadow-2xl">
-                                        <div className="text-center">
-                                            <div className="mx-auto flex
+</html>
