@@ -946,7 +946,7 @@
                                         <h2 className="text-xl font-semibold text-gray-800">Workspace Configuration</h2>
                                     </div>
                                     
-                                    <div className="space-y-6">
+                                    <div className="grid md:grid-cols-3 gap-6">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">License Type</label>
                                             <select 
@@ -958,17 +958,6 @@
                                                 <option value="Professional">Professional - $24,000/year</option>
                                                 <option value="Enterprise">Enterprise - $36,000/year</option>
                                             </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Total Workspaces</label>
-                                            <input 
-                                                type="number"
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                                                value={formData.totalWorkspaces}
-                                                onChange={(e) => handleInputChange('totalWorkspaces', e.target.value)}
-                                                placeholder="Enter total number of workspaces"
-                                            />
                                         </div>
 
                                         <div>
@@ -992,8 +981,10 @@
                                                 placeholder="Number of AI workspaces"
                                             />
                                         </div>
-                                        
-                                        {parseInt(formData.aiWorkspaces) > 0 && (
+                                    </div>
+                                    
+                                    {parseInt(formData.aiWorkspaces) > 0 && (
+                                        <div className="grid md:grid-cols-2 gap-6 mt-6">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>
                                                 <select 
@@ -1006,35 +997,35 @@
                                                     <option value="GoodData">GoodData</option>
                                                 </select>
                                             </div>
-                                        )}
-                                        
-                                        {parseInt(formData.aiWorkspaces) > 0 && formData.llmProvider && (
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
-                                                <select 
-                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
-                                                    value={formData.package}
-                                                    onChange={(e) => handleInputChange('package', e.target.value)}
-                                                >
-                                                    <option value="">Select Package</option>
-                                                    {formData.llmProvider === 'Customer' && (
-                                                        <>
-                                                            <option value="Small">Small - ${pricing.llmPackages.Customer.Small}/month</option>
-                                                            <option value="Medium">Medium - ${pricing.llmPackages.Customer.Medium}/month</option>
-                                                            <option value="Large">Large - ${pricing.llmPackages.Customer.Large}/month</option>
-                                                        </>
-                                                    )}
-                                                    {formData.llmProvider === 'GoodData' && (
-                                                        <>
-                                                            <option value="Small">Small - ${pricing.llmPackages.GoodData.Small}/month</option>
-                                                            <option value="Medium">Medium - ${pricing.llmPackages.GoodData.Medium}/month</option>
-                                                            <option value="Large">Large - ${pricing.llmPackages.GoodData.Large}/month</option>
-                                                        </>
-                                                    )}
-                                                </select>
-                                            </div>
-                                        )}
-                                    </div>
+                                            
+                                            {formData.llmProvider && (
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Package</label>
+                                                    <select 
+                                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-white"
+                                                        value={formData.package}
+                                                        onChange={(e) => handleInputChange('package', e.target.value)}
+                                                    >
+                                                        <option value="">Select Package</option>
+                                                        {formData.llmProvider === 'Customer' && (
+                                                            <>
+                                                                <option value="Small">Small - ${pricing.llmPackages.Customer.Small}/month</option>
+                                                                <option value="Medium">Medium - ${pricing.llmPackages.Customer.Medium}/month</option>
+                                                                <option value="Large">Large - ${pricing.llmPackages.Customer.Large}/month</option>
+                                                            </>
+                                                        )}
+                                                        {formData.llmProvider === 'GoodData' && (
+                                                            <>
+                                                                <option value="Small">Small - ${pricing.llmPackages.GoodData.Small}/month</option>
+                                                                <option value="Medium">Medium - ${pricing.llmPackages.GoodData.Medium}/month</option>
+                                                                <option value="Large">Large - ${pricing.llmPackages.GoodData.Large}/month</option>
+                                                            </>
+                                                        )}
+                                                    </select>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
@@ -1146,107 +1137,6 @@
                                             </label>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Pricing Editor */}
-                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div className="flex items-center gap-3">
-                                            <Settings className="w-6 h-6 text-gray-600" />
-                                            <h2 className="text-xl font-semibold text-gray-800">Pricing Editor</h2>
-                                        </div>
-                                        <button
-                                            onClick={() => setEditMode(!editMode)}
-                                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                                        >
-                                            {editMode ? 'Close Editor' : 'Edit Pricing'}
-                                        </button>
-                                    </div>
-                                    
-                                    {editMode && (
-                                        <div className="space-y-6">
-                                            <div className="grid md:grid-cols-3 gap-4">
-                                                {!formData.license && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Platform Fee</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.platformFee}
-                                                            onChange={(e) => updatePricing('platformFee', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {formData.license === 'Professional' && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Professional License</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.professionalLicense}
-                                                            onChange={(e) => updatePricing('professionalLicense', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {formData.license === 'Enterprise' && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Enterprise License</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.enterpriseLicense}
-                                                            onChange={(e) => updatePricing('enterpriseLicense', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {formData.license === 'Enterprise Plus' && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">Enterprise Plus License</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.enterprisePlusLicense}
-                                                            onChange={(e) => updatePricing('enterprisePlusLicense', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {parseInt(formData.biWorkspaces) > 0 && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">BI Workspace (monthly)</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.biWorkspacePrice}
-                                                            onChange={(e) => updatePricing('biWorkspacePrice', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                                {parseInt(formData.aiWorkspaces) > 0 && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">AI Workspace (monthly)</label>
-                                                        <input 
-                                                            type="number"
-                                                            className="w-full p-3 border border-gray-300 rounded-lg"
-                                                            value={pricing.aiWorkspacePrice}
-                                                            onChange={(e) => updatePricing('aiWorkspacePrice', e.target.value)}
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Comments Section */}
-                                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6">
-                                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Comments</h2>
-                                    <textarea 
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 resize-none"
-                                        rows="4"
-                                        placeholder="Add any additional comments or notes about this quote..."
-                                        value={formData.objectives}
-                                        onChange={(e) => handleInputChange('objectives', e.target.value)}
-                                    />
                                 </div>
 
                                 {/* Pricing Summary */}
